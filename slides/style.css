@@ -1,0 +1,76 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates&display=swap');
+
+/* Formato Title slide */
+.title-slide {
+    background-color: #021725;
+    padding: 0px 64px 0px 0px;
+}
+
+
+.title-slide h1{
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: bold;
+    text-align: right;
+    color: #98D0E9;
+}
+
+.title-slide h2, .title-slide h3{
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: normal;
+    font-size: 24px;
+    text-align: right;
+    color: #98D0E9;
+}
+
+.title-slide h4{
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: normal;
+    color: #7EF705;
+    text-decoration: underline; 
+    font-size: 20px;
+    text-align: right;
+
+}
+
+/* Body slides */
+
+h1{
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: bold;
+    color: #0A6073;
+}
+
+h2, h3{
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: normal;
+    color: #0A6073;
+}
+
+a:link {
+  color: #7EF705;
+  text-decoration: underline;
+}
+
+.remark-slide-content {
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: normal;
+    font-size: 28px;
+    color: #0A6073;
+}
+
+.inverse {
+  background-color: #021725;
+  color: #98D0E9;
+}
+
+.inverse h1, .inverse h2, .inverse h3{
+  color:#98D0E9 ;
+}
+
+
+li {
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-weight: normal;
+  font-size: 24px;
+}

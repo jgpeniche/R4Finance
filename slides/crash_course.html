@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R 4 Finance</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Gibrán Peniche" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: title-slide, right, middle
+.pull-left[ &lt;img src="figs/bottom_img.png" width="1017" /&gt;]
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+# R4Finanace
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/06/05
+####  &lt;i class="fab fa-github"&gt;&lt;/i&gt; [jgpeniche](https://github.com/jgpeniche)
+####  &lt;i class="fab fa-twitter"&gt;&lt;/i&gt; [PenicheGibran](https://twitter.com/PenicheGibran)
+####  &lt;i class="fab fa-google"&gt;&lt;/i&gt; jgpeniche@gmail.com
+---
+
+class: inverse, center, middle
+
+# ¿Qué es R?
+
+
+---
+
+# ¿Qué es R?
+
+--
+
+&lt;br&gt;
+&lt;br&gt;
+
+## R es un **lenguage** de programación para computación estadística
+
+--
+ 
+### `\(\cdot\)` (No lo digo yo... está en su página) [r-project](https://www.r-project.org/)
+
+---
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;img src="figs/rlogo.png" width="553" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: inverse, center, middle
+
+# ¿Qué es RStudio?
+
+---
+
+# ¿Qué es RStudio?
+
+--
+
+## `\(\cdot\)` Es un **IDE**
+
+--
+  
+## `\(\cdot\)` Esto es (versión corta) un editor de texto: R, C++, Python, Julia...
+
+--
+  
+## `\(\cdot\)` Pero en realidad es (versión larga) Un ambiente de desarrollo:
+---
+
+&lt;br&gt;
+&lt;br&gt;
+
+&lt;img src="figs/hexes.png" width="900px" height="500px" style="display: block; margin: auto;" /&gt;
+---
+class: center, middle
+
+# En conclusión...
+
+---
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+&lt;img src="figs/not_equal.png" width="2049" /&gt;
+
+---
+class: center, middle
+# **NO** son lo mismo
+
+---
+
+# R vs. Python: ¿Cuál es la diferencia?
+ 
+--
+
+### R es un lenguage de **dominio específico** `\(\Longrightarrow\)` que ha tratado de migrar a un lenguage de **dominio general**
+
+--
+    
+  a. Shiny para aplicaciones y dashboards
+
+--
+  
+  b. Rmarkdown para documentos word, pdf, powerpoint (o Xaringan como esta presentación), html, etc..
+
+--
+  
+### Python es un lenguage de **dominio general** `\(\Longrightarrow\)` que ha tratado de migrar hacia un lenguage de **dominio específico**
+
+--
+  
+  a. Pandas para manipulación de datos
+
+--
+
+  b. SciKitLearn para modelaje estadístico
+  
+---
+
+# ¿Y en qué si son parecidos?
+
+--
+&lt;br&gt;
+
+## ¡Son gratis!
+
+
+
+--
+
+
+## Tanto como el lenguage y el IDE son **open source**
+
+
+  
+--
+
+## Son bastante lentos
+---
+
+class: inverse, center, middle
+# ¿Por qué migrar hacia el open source? 
+# 3 razones
+
+---
+
+class: center, middle
+
+# 1
+
+---
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;img src="figs/r1.png" width="1509" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: center, middle
+
+# 2
+
+---
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+&lt;img src="figs/precios.png" width="921" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: center, middle
+# 3
+
+---
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;img src="figs/final_final.png" width="788" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Más razones...
+
+--
+
+### 4. No son **reproducibles**
+
+--
+
+### 5. Es difícil versionarlos
+
+--
+
+### 6. Son lentísimos
+  
+---
+
+# Más razones
+
+### 7. Los modelos complejos requieren de un esfuerzo titánico para programárse (¿alguna vez han programado un verosimilitud?)
+  
+--
+
+### 8. Colaborar es muy difícil
+
+--
+
+### 9. Es difícil darles mantenimiento
+
+--
+
+### 10. Casi nunca están documentados
+---
+
+class: inverse, center, middle
+# Razón `\(\{ n, n+1, ... \}\)`
+
+--
+
+# ¡ODIO     EXCEL!
+
+---
+
+class: center, middle
+# En mi opinion...
+
+--
+
+### Son populares porque se requiere ser mínimo funcional para utilizarlos
+
+---
+
+class: center, middle, inverse
+# ¿Qué ganamos si cambiamos a lenguajes de programación avanzados?
+
+---
+
+class: center, middle
+### Separar la **estrucutura (tabular) de los datos** de la **estructura (lineal) del ambiente del trabajo**  
+
+---
+
+# Más razones...
+
+--
+
+### Potencia de computo
+
+--
+
+### Control de Versiones
+--
+
+### Modelos más complejos
+  
+--
+
+### Una apreciación en el orden de K*1e-3 en su salario
+  
+---
+
+# Entonces... ¿R o Python?
+
+--
+
+### 3 Razones para usar R y no Python
+
+--
+
+`\(1\)` `tidyverse` 
+
+--
+
+  a. Pipe operator `%&gt;% ` y sus amigos de `magrittr`
+--
+  
+  b. Gramática de las visualizaciones con `ggplot2`
+--
+  
+  c. Sintaxis SQL para manipulación de datos tabulares `dplyr`
+---
+# Entonces... ¿R o Python? 
+### 3 Razones para usar R y no Python
+
+`\(2\)` `tidymodels`
+
+--
+  
+  a. Resumenes
+--
+  
+  b. calibración y;
+--
+  
+  c. ajuste de modelos todo en el esquema de **datos limpios** (Tidy Data)
+---
+# Entonces... ¿R o Python?
+### 3 Razones para usar R y no Python
+
+`\(3\)` `rstanarm`
+
+--
+
+  a. Integración entre R y la libreria más estable para métodos bayesianos
+
+---
+
+
+class: center, middle
+# ¿Qué vamos a aprender en el curso?
+
+---
+
+# Temario
+
+--
+  
+  1. Sintaxis básica 
+
+--
+
+  2. Manipulación de datos con *dplyr*
+  
+--
+
+  3. Visualización de datos con *ggplot2*
+
+--
+
+  4. Lectura de datos
+
+--
+
+  5. Manipulación de datos financieros con `tidyquant`
+
+--
+
+  6. Modelos estadísticos en el contexto de tidy data con *tidymodels*
+  
+--
+
+  7. Versionamiento semántico y colaboración con Git
+  
+--
+
+  8. Reportes en RMarkdown
+
+--
+  
+  9. Apps y Dashboards con shiny
+  
+---
+
+class: inverse, center, middle
+# 1. Sintaxis Básica
+
+
+---
+
+# Programación en R 101
+
+--
+
+``` 
+# Declarar texto como comentario
+```
+
+--
+
+```
+# Asignar una variable
+a &lt;- 4
+```
+
+--
+
+`# Utilizar &lt;- e = es 'casi' equivalente`
+
+--
+
+`# Al utilizar = se crea un duplicado en la memoria`
+
+--
+
+`# Te da igual si trabajas con pocos megas de datos`
+
+--
+
+`# Procura utilizar &lt;- algún día vas a estar trabajando con gigas de datos`
+
+--
+
+ +, - , /, \* todas funcionan de manera **vectorizada** sobre los objetos
+  
+---
+
+# Más sintaxis básica
+
+--
+
+Creamos vectores con la función `c()` con cada elemento separado por una ' , '. (OJO también es posible crear vectores vacios)
+
+--
+
+El tipo de los elementos puede ser:
+
+--
+
+  1. Número ( `double` )
+
+--
+
+  2. Texto ( `string` )
+  
+--
+
+  3. Boolean (`TRUE` / `FALSE`)
+
+---
+
+# Más sintaxis básica
+
+--
+
+Ciclos *for*
+
+--
+
+```
+
+for(i in algun_objeto){
+
+  # Hacer cosas
+
+}
+
+```
+
+---
+
+# Más sintaxis básica
+
+
+Declaracion *if*
+
+--
+
+```
+
+if( alguna_condición ){
+
+# Hacer cosas
+
+}else{
+
+# Hacer más cosas
+
+}
+
+```
+---
+
+# Más sintaxis básica
+
+
+Declarar funciones
+
+--
+
+```
+
+f &lt;- function(x, y, z, ...){
+
+# Hacer cosas
+
+return(resultado)
+
+}
+
+```
+---
+
+# *Primer* en  funciones
+
+##Hay dos maneras de llamar argumentos de una función en R
+
+--
+
+&lt;br&gt;
+Sea `\(f( \alpha , \beta )\)` una función
+
+--
+
+&lt;br&gt;
+`\(\rightarrow\)` Podemos declarar los argumentos de una función
+
+--
+
+  1. Por **nombre** ` f(alpha = a, beta = b) `
+  
+--
+
+  2. Por **orden** `f(a, b)`
+--
+    
+    - Es buena práctica llamar los argumentos por nombre para que tu trabajo sea **legible** y **reproducible**
+---
+
+# Data Frames
+
+--
+
+### Toda la infraestructura de R está diseñada para trabajar sobre una clase de objeto en particular: el **Data Frame** 
+
+--
+
+Es alrededor de este objeto que se realiza todo el modelaje estadístico y la razón por la que R es ideal para hacer análisis de datos
+
+--
+
+
+
+```r
+# Requerimos una libreria
+library(dplyr)
+
+#Siempre recuerden sembrar su semilla!!!
+set.seed(666)
+
+#Creamos un Data Frame
+df &lt;- tibble(
+  x_norm = rnorm( n = 100, mean = 0, sd = 1),
+  x_exp = rexp(n = 100, rate = 1.5),
+  x_seq = seq(from = 1, to = 7.897, length.out = 100)
+)
+```
+---
+
+class: inverse, center, middle
+# Chela al que me diga que hacen las funciones
+## 'rnorm', 'rexp', 'seq'
+
+---
+
+class: center, middle
+# Antes de continuar recuerden...
+
+--
+## '?' es mi pastor
+
+--
+### Todas las funciones y paquetes en R están documentadas
+
+---
+
+# Data Frames
+
+--
+### Podemos accesar al contenido de un df de 2 maneras:
+
+--
+
+**1** Con [ ] y llamando elementos por su posición dentro del df (la estructura básica es basicamente una matriz)
+
+--
+    - `abs(df[i, j])` llama al valor en el renglón *i* y en la columna *j* y toma el valor absoluto
+--
+
+    - `mean(df[,column])` llama a todos los renglones de la columna *column* y después tomamos la media
+--
+
+    - `sd(df[row,])`llama a todas las columnas del renglón *row* y luego calcula su desviación estándar
+---
+
+# Data Frames
+
+### Podemos accesar al contenido de un df de 2 maneras:
+
+--
+**2** Con el operador $ que despliega una lista de los nombres de las variables contenidas en el df
+  
+--
+    - `summary(df$x_norm)`
+---
+
+class: center, middle
+
+# El hecho de que cada columna sea una variable es algo reelvante que vale la pena discutir
+
+---
+
+# Datos limpios
+
+--
+
+### En computación existe algo llamado la *tercera forma normal de Codd*, tiene que ver con bases de datos relacionadas, pero en términos estadísticos significa:
+
+--
+
+  1. Cada variable es una columna
+--
+
+  2. Cada renglón es una observación
+--
+
+  3. Cada tabla es una unidad observacional
+
+--
+
+Todo el *framework* sobre el que vamos a trabajar parte del concepto de **tidy data**
+
+--
+
+La idea central de este tipo de forma de trabajar es que la **estructura** de los datos conrrespondan a la **semántica** de los mismos
+
+--
+
+Esto hace que el análisis y las funciones sean más eficientes
+
+--
+
+En la práctica, **80%** de su tiempo lo van a utilizar para llevar hojas de cálculo en excel a este formato
+
+---
+
+class: center, middle
+# Sintáxis Avanzada
+
+---
+
+# *Pipe* Operator
+
+--
+
+Una de las razones por la que R es tan poderoso para hacer análisis de datos es su **sintaxis**
+
+--
+
+El primer caso importante (de hecho en python se incorporó a pandas) es el **operador pipa** ` %&gt;% `de *magrittr* (no olvides que su atajo de teclado es CTRL/CMND + SHIFT + M)
+
+--
+
+En nuestros ejemplos anteriores se vería asi:
+
+--
+
+`mean(df$x_norm)`
+
+--
+
+`# Es equivalente a`
+
+--
+
+```
+library(magrittr)
+
+df %&gt;% mean(x_norm)
+```
+
+--
+
+La *pipa* simplemente toma el argumento de la izquierda y lo usa como primer argumento de la función de la derecha
+
+--
+
+Esto hace el código mucho más *legible*, *mantenible* y *reprodocible*
+
+---
+
+# Sintáxis Avanzada
+
+--
+
+### Otro ejemplo de lo poderosa que es esta sintaxis es el *subseting pipe*
+
+--
+
+Esto: 
+
+`cor(df$x_norm, df$x_exp)`
+
+--
+
+Se puede escribir así:
+
+`df %$% cor(x_norm, x_exp)`
+
+---
+# Exploremos algunos datos
+
+--
+
+  1. Abre un nuevo script
+  
+--
+
+  2. Llama a las liberias *dplyr* y *magrittr* con la función `library()`(Si no tienes instalados los paquetes instálalos)
+  
+--
+
+  3. Llama a la memoria la base de datos 'EuStockMarkets' (Solo tienes que escribir el nombre y asignarlo porque la base de datos ya viene precargada en R) y asignala a una nueva variable como un Data Frame con la función `as_tibble()`
+
+--
+
+  4. Revisa el contenido del objeto con la función `glimpse()` (recuerda usar la sintaxis avanzada)
+
+--
+
+  5. Realiza un análisis exploratorio de datos con la función `str()`
+
+--
+
+  6. Programa una función `retorno()` que reciba como argumento un vector precios y calcule los retornos
+  
+--
+
+  7. Prueba tu función con los precios del DAX
+  
+---
+
+class: inverse, center, middle
+# Antes de empezar
+--
+
+## Pro Tip
+
+---
+
+&lt;br&gt;
+&lt;br&gt;
+
+### Mucho a lo que te vas a enfrentar programando, es precisamente a no poder hacerlo
+
+--
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+### ¡Usa las herramientas a tu disposición! La documentación de las funciones, buscar en StackOverflow, etc...
+
+--
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+### Corre tiempo...
+
+---
+
+
+# Exploremos algunos datos
+
+
+  1. Abre un nuevo script
+  
+
+  2. Llama a las liberias *dplyr* y *magrittr* con la función `library()`(Si no tienes instalados los paquetes instálalos)
+  
+
+  3. Llama a la memoria la base de datos 'EuStockMarkets' (Solo tienes que escribir el nombre y asignarlo porque la base de datos ya viene precargada en R) y asignala a una nueva variable como un Data Frame con la función `as_tibble()`
+
+
+  4. Revisa el contenido del objeto con la función `glimpse()` (recuerda usar la sintaxis avanzada)
+
+
+  5. Realiza un análisis exploratorio de datos con la función `summary()`
+
+
+  6. Programa una función `retorno()` que reciba como argumento un vector precios y calcule los retornos
+  
+
+  7. Prueba tu función con los precios del DAX
+
+<div class="countdown" id="timer_5ee007a5" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+# Solución
+
+
+```r
+library(dplyr)
+library(magrittr)
+
+# Cargamos base de datos a la memoria
+
+stocks &lt;- EuStockMarkets %&gt;% 
+  as_tibble() %&gt;% 
+  janitor::clean_names()
+
+stocks %&gt;% 
+  glimpse()
+
+stocks %&gt;% 
+  summary()
+```
+
+---
+
+# Solución 
+
+
+```r
+retorno &lt;- function(precios){
+  # Creamos vector vacio de retornos
+  retornos &lt;- c() 
+  
+  # Para un vector de n precios tenemos n - 1 retornos
+    for(i in 1:length(precios)){
+    
+    if (i == 1){
+      
+      retornos[i] &lt;- 0
+      
+    }else{
+      
+      retornos[i] &lt;- log(precios[i]) - log(precios[i-1])
+      
+    }
+  }
+  
+  return(retornos)
+}
+```
+---
+
+# Solución 
+
+
+```r
+retornos_dax &lt;- stocks$dax %&gt;% 
+  retorno()
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"self_contained": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
