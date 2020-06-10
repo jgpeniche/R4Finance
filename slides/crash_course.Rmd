@@ -24,6 +24,7 @@ class: title-slide, right, middle
 <br>
 
 # R4Finanace
+## R101
 ### J. Gibrán Peniche
 ### Versión 0.0.1
 ### 2020/06/05
@@ -385,7 +386,7 @@ class: center, middle
   
 --
 
-  7. Versionamiento semántico y colaboración con Git
+  7. Versionamiento semántico y programación orientada a proyectos 
   
 --
 
@@ -552,7 +553,7 @@ $\rightarrow$ Podemos declarar los argumentos de una función
   
 --
 
-  2. Por **orden** `f(a, b)`
+  2. Por **orden** `f(b, a)`
 --
     
     - Es buena práctica llamar los argumentos por nombre para que tu trabajo sea **legible** y **reproducible**
@@ -646,7 +647,7 @@ class: center, middle
 
 --
 
-### En computación existe algo llamado la *tercera forma normal de Codd*, tiene que ver con bases de datos relacionadas, pero en términos estadísticos significa:
+### En computación existe algo llamado la **tercera forma normal de Codd** que tiene que ver con bases de datos relacionadas, pero en términos estadísticos significa:
 
 --
 
@@ -689,7 +690,8 @@ Una de las razones por la que R es tan poderoso para hacer análisis de datos es
 
 --
 
-El primer caso importante (de hecho en python se incorporó a pandas) es el **operador pipa** ` %>% `de *magrittr* (no olvides que su atajo de teclado es CTRL/CMND + SHIFT + M)
+El primer caso importante (de hecho en python se incorporó a pandas) es el **operador pipa**  `%>%` de  *magrittr*
+
 
 --
 
@@ -805,25 +807,18 @@ class: inverse, center, middle
 
 # Exploremos algunos datos
 
-
-  1. Abre un nuevo script
+  1. Abre un nuevo script 
   
-
-  2. Llama a las liberias *dplyr* y *magrittr* con la función `library()`(Si no tienes instalados los paquetes instálalos)
+  2. Llama a las liberias *dplyr* y *magrittr* con la función `library()`(Si no tienes instalados los paquetes instálalos) 
   
-
   3. Llama a la memoria la base de datos 'EuStockMarkets' (Solo tienes que escribir el nombre y asignarlo porque la base de datos ya viene precargada en R) y asignala a una nueva variable como un Data Frame con la función `as_tibble()`
-
-
+  
   4. Revisa el contenido del objeto con la función `glimpse()` (recuerda usar la sintáxis avanzada)
-
-
+  
   5. Realiza un análisis exploratorio de datos con la función `summary()`
-
-
+  
   6. Programa una función `retorno()` que reciba como argumento un vector precios y calcule los retornos
   
-
   7. Prueba tu función con los precios del DAX
 
 ```{r timer, echo=FALSE}
