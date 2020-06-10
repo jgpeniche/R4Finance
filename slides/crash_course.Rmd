@@ -323,7 +323,7 @@ $1$ `tidyverse`
   b. Gramática de las visualizaciones con `ggplot2`
 --
   
-  c. Sintaxis SQL para manipulación de datos tabulares `dplyr`
+  c. sintáxis SQL para manipulación de datos tabulares `dplyr`
 ---
 # Entonces... ¿R o Python? 
 ### 3 Razones para usar R y no Python
@@ -361,7 +361,7 @@ class: center, middle
 
 --
   
-  1. Sintaxis básica 
+  1. Sintáxis básica 
 
 --
 
@@ -398,7 +398,7 @@ class: center, middle
 ---
 
 class: inverse, center, middle
-# 1. Sintaxis Básica
+# 1. Sintáxis Básica
 
 
 ---
@@ -420,27 +420,29 @@ a <- 4
 
 --
 
-`# Utilizar <- e = es 'casi' equivalente`
+Utilizar '`=`' ó '`<-`' es básicamente lo mismo
 
 --
 
-`# Al utilizar = se crea un duplicado en la memoria`
+<br> 
+
+Sin embargo, no puedes asignar argumentos de una función utilizando '`<-`'
 
 --
 
-`# Te da igual si trabajas con pocos megas de datos`
+<br>
+
+Aunque son lo mismo es buena práctica asignar objetos con `<-`
+
 
 --
+<br>
 
-`# Procura utilizar <- algún día vas a estar trabajando con gigas de datos`
-
---
-
- +, - , /, \* todas funcionan de manera **vectorizada** sobre los objetos
++, - , /, \* todas funcionan de manera **vectorizada** sobre los objetos
   
 ---
 
-# Más sintaxis básica
+# Más sintáxis básica
 
 --
 
@@ -464,7 +466,7 @@ El tipo de los elementos puede ser:
 
 ---
 
-# Más sintaxis básica
+# Más sintáxis básica
 
 --
 
@@ -484,7 +486,7 @@ for(i in algun_objeto){
 
 ---
 
-# Más sintaxis básica
+# Más sintáxis básica
 
 
 Declaracion *if*
@@ -506,7 +508,7 @@ if( alguna_condición ){
 ```
 ---
 
-# Más sintaxis básica
+# Más sintáxis básica
 
 
 Declarar funciones
@@ -679,7 +681,7 @@ class: center, middle
 
 --
 
-Una de las razones por la que R es tan poderoso para hacer análisis de datos es su **sintaxis**
+Una de las razones por la que R es tan poderoso para hacer análisis de datos es su **sintáxis**
 
 --
 
@@ -719,7 +721,7 @@ Esto hace el código mucho más *legible*, *mantenible* y *reprodocible*
 
 --
 
-### Otro ejemplo de lo poderosa que es esta sintaxis es el *subseting pipe*
+### Otro ejemplo de lo poderosa que es esta sintáxis es el *subseting pipe*
 
 --
 
@@ -750,7 +752,7 @@ Se puede escribir así:
 
 --
 
-  4. Revisa el contenido del objeto con la función `glimpse()` (recuerda usar la sintaxis avanzada)
+  4. Revisa el contenido del objeto con la función `glimpse()` (recuerda usar la sintáxis avanzada)
 
 --
 
@@ -809,7 +811,7 @@ class: inverse, center, middle
   3. Llama a la memoria la base de datos 'EuStockMarkets' (Solo tienes que escribir el nombre y asignarlo porque la base de datos ya viene precargada en R) y asignala a una nueva variable como un Data Frame con la función `as_tibble()`
 
 
-  4. Revisa el contenido del objeto con la función `glimpse()` (recuerda usar la sintaxis avanzada)
+  4. Revisa el contenido del objeto con la función `glimpse()` (recuerda usar la sintáxis avanzada)
 
 
   5. Realiza un análisis exploratorio de datos con la función `summary()`
