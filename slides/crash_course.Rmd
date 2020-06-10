@@ -446,7 +446,11 @@ Aunque son lo mismo es buena práctica asignar objetos con `<-`
 
 --
 
-Creamos vectores con la función `c()` con cada elemento separado por una ' , '. (OJO también es posible crear vectores vacios)
+Creamos vectores con la función `c()` con cada elemento separado por una ' , ' 
+
+--
+
+OJO también es posible crear vectores vacios `x  <- c()`
 
 --
 
