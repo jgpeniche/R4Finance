@@ -15,7 +15,15 @@
     color: #98D0E9;
 }
 
-.title-slide h2, .title-slide h3{
+.title-slide h2{
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: bold;
+    font-size: 28px;
+    text-align: right;
+    color: #98D0E9;
+}
+
+ .title-slide h3{
     font-family: 'Montserrat Alternates', sans-serif;
     font-weight: normal;
     font-size: 24px;
