@@ -420,34 +420,23 @@ a <- 4
 
 --
 
-Utilizar '`=`'  ó  '`<-`'  para asignar variables es lo mismo
-
-
---
-
-<br>
-
-Sin embargo, no puedes declarar los argumentos de una función con `<-`
+`# Utilizar <- e = es 'casi' equivalente`
 
 --
 
-<br>
-
-
-Digamos que `=` es un caracter reservado para argumentos en funciones
+`# Al utilizar = se crea un duplicado en la memoria`
 
 --
 
-
-<br>
-
-A pesar de ser equivalentes es buena práctica asignar objetos a variables con `<-`
+`# Te da igual si trabajas con pocos megas de datos`
 
 --
 
-<br>
+`# Procura utilizar <- algún día vas a estar trabajando con gigas de datos`
 
-+, - , /, \* todas funcionan de manera **vectorizada** sobre los objetos
+--
+
+ +, - , /, \* todas funcionan de manera **vectorizada** sobre los objetos
   
 ---
 
