@@ -244,7 +244,7 @@ knitr::include_graphics('figs/final_final.png')
 
 # Más razones
 
-### 7. Los modelos complejos requieren de un esfuerzo titánico para programárse (¿alguna vez han programado un verosimilitud?)
+### 7. Los modelos complejos requieren de un esfuerzo titánico para programárse (¿alguna vez han programado una verosimilitud?)
   
 --
 
