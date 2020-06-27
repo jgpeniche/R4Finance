@@ -197,7 +197,7 @@ class: center, middle
 
 ---
 
-# R como proyectoto open-source
+# R como proyecto open-source
 
 --
 

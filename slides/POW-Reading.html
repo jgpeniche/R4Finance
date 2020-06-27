@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R 4 Finance</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Gibrán Peniche" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: title-slide, right, middle
+.pull-left[ &lt;img src="figs/bottom_img.png" width="1017" /&gt;]
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+# R4Finanace
+## Project Oriented Work Flow &amp; Importing
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/06/26
+####  &lt;i class="fab fa-github"&gt;&lt;/i&gt; [jgpeniche](https://github.com/jgpeniche)
+####  &lt;i class="fab fa-twitter"&gt;&lt;/i&gt; [PenicheGibran](https://twitter.com/PenicheGibran)
+####  &lt;i class="fab fa-google"&gt;&lt;/i&gt; jgpeniche@gmail.com
+---
+
+# Recap
+
+
+--
+
+- `dplyr`
+
+--
+
+  1. select
+  
+--
+
+  2. group_by
+  
+--
+
+  3. filter
+  
+--
+
+  4. summarise
+  
+---
+
+# Solución Tarea
+
+--
+
+Sustituir esto
+
+```
+crimes &lt;- USArrests
+crimes$state &lt;- rownames(crimes)
+crimes &lt;- crimes %&gt;% 
+  as``_tibble() %&gt;% 
+  janitor::clean_names()
+
+```
+
+--
+
+Por esto:
+
+```
+crimes &lt;- crimes %&gt;% 
+  mutate(state = rownames(crimes)) %&gt;% 
+  as_tibble() %&gt;% 
+  janitor::clean_names()
+
+```
+---
+
+# `dplyr::mutate`
+
+--
+
+### *Crea* ó *Modifica* columnas en el df
+
+---
+
+# Agenda
+
+--
+
+1. Importar datos
+
+--
+
+2. Reproducibilidad
+
+--
+
+3. Software Engineering
+
+--
+
+4. EIKIFJB
+
+--
+
+5. Project Oriented Work flow
+
+---
+
+class: inverse, center, middle
+# 1
+
+--
+
+## Importando datos con RStudio
+
+---
+
+# Paso 1
+
+--
+
+&lt;br&gt;
+
+&lt;img src="figs/import1.png" width="600" height="250" style="display: block; margin: auto;" /&gt;
+---
+
+# Paso 2
+
+--
+
+&lt;br&gt;
+
+&lt;img src="figs/import2.png" width="600" height="250" style="display: block; margin: auto;" /&gt;
+---
+
+# Paso 3
+
+--
+
+
+
+&lt;img src="figs/import3.png" width="800" height="450" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: center, inverse
+# Algunos problemas...
+
+---
+
+# `setwd` y Paths absolutos
+
+```
+
+setwd('C:/Users/jgpen/Documents/R4Finance/slides')
+
+template &lt;- read_excel("slides/data/template.xlsx", 
+    sheet = "regressors")
+```
+
+### ¿Alguien ve algún problema?
+
+---
+
+class: center, middle
+
+--
+
+# ¡Obvio! Es que ustedes no tienen el archivo!🤦️
+
+--
+
+## ¿Y ahora que pasó?
+
+---
+
+class: inverse, center, middle
+# 2
+
+--
+
+## Reproducibilidad
+
+---
+
+# Reproducibilidad
+
+--
+
+En el mundo de la ciencia de datos, y en particular con la tecnología que tenemos a nuestro alcance, ya no se trata simplemente de hacer *análisis de datos* sino de crear **Productos de Datos**
+
+--
+
+Una de las características de un *producto de datos* es que es **REPRODUCIBLE**
+
+--
+
+En otras paralabras, esto quiere decir que ya no puede  haber *cajas negras* detrás de cualquier tipo de resultado
+
+--
+
+En principio el comando `setwd('Un_path/que_solo/existe/en_mi_computadora')` contraviene específicamente este principio de reproducibilidad
+
+--
+
+### ¿Cómo se resuelve este problema en particular?
+
+---
+
+&lt;img src="figs/ds_diagram.png" width="600" height="600" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: inverse, center, middle
+# 3
+
+--
+
+## Software Engineering
+
+---
+
+class: center, middle
+# Hacking Skills = Software Engineering
+--
+
+## ¿Do I have to be a Data Engineer to be a Data Scientist?
+
+---
+
+# ¿Do I have to be a Data Engineer to be a Data Scientist?
+
+--
+
+No necesariamente, pero es importante saber 'algo' de lo que ocurre detrás de las herramientas de trabajo que utilizamos
+
+--
+
+[FIKISJB](https://github.com/MonkmanMH/EIKIFJB)
+
+---
+
+class: center, inverse, middle
+# 4
+--
+
+## Project Oriented Workflow
+
+---
+
+# Project Oriented Workflow
+
+--
+### Los desarrolladores de *RStudio* desarrollaron un tipo de archivos cuya extensión es `.Rproj`
+
+--
+
+### Estos archivos fungen como un **punto de partida** para que RStudio sepa en dónde está en **cualquier** computadora
+
+---
+
+# Proyectos Auto-Contenidos
+
+--
+
+De tal suerte de garantizar la *reproducibilidad* de nuestro trabajo debemos seguir el siguiente esquema de trabajo para **CUALQUIER** producto de datos
+
+--
+
+  1. Organizar cada análisis de datos dentro de un proyecto: Un folder que contega todos los archivos necesarios para ese trabajo en particular
+
+--
+
+  2. Cualquier script se debe escribir asumiendo que se va a ejecutar desde el directorio de trabajo que contiene el proyecto. Esto quiere decir que cualquier producto estará también ahí y no tocará nada que no esté en este directorio
+
+--
+
+Esta sencilla convención grantiza que el proyecto puede ir de una lugar a otro y simplemente *va funcionar*
+
+---
+
+class: center, middle
+# Intentemoslo de nuevo
+
+---
+
+# POW + `here`
+
+--
+
+### Abrimos R a partir del archivo `.Rproj` o bien seleccionamos el proyecto que queremos de la esquina superior derecha
+
+--
+
+### Importamos la base de datos utilizando la libreria `here`
+
+--
+
+### `here` automaticamente busca la ubicación del proyecto y nos permite accesar a nuestros archivos sin necesidad de usar *paths* tan largos
+
+---
+
+# Ejercicio
+
+--
+
+1. Importar la hoja *is* de la base de datos *template.xlsx* 
+
+--
+
+2. Traspon el estado finaciero utilizando la función `tidyr::pivot_longer` y luego `tidyr::pivot_wider` para poderlo manipular con `dplyr` (HINT: puedes usar `pivot_longer(-concept)` y revisa la documentación de `pivot_wider()`)
+
+--
+
+3. Utilizando `dplyr::mutate` cambiar el tipo de valores de la columna *date* de tipo *character* a tipo *date* (HINT: buscar la documentación sobre el paquete `lubridate` o buscar la manera de hacerlo en StackOverflow)
+
+--
+
+4. Crear una columna llamada *mn* (Margen Neto = utilidad neta/ ventas) utilizando `dplyr::mutate` y posteriormente realizar un resumen del margen **máximo**, el margen **mínimo** y el margen **promedio**
+
+--
+
+5. Pasa la base de datos a formato *tidy* (en este caso *long_format*) utilizando nuevamente `tidyr::pivot_longer`
+
+--
+
+&lt;div class="countdown" id="timer_5ef6d11d" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">15</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div><
+
+---
+
+# Solución
+
+
+```r
+library(dplyr)
+library(magrittr)
+library(readxl)
+library(here)
+library(tidyr)
+
+is &lt;- here('slides','data','template.xlsx') %&gt;% 
+  read_excel(sheet = 'is') %&gt;% 
+  pivot_longer(-concept, names_to = 'date' ) %&gt;% 
+  pivot_wider(names_from = concept, values_from = value) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(date = lubridate::mdy(date),
+         nm = net_income/revenue) %&gt;% 
+  pivot_longer(-date)
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"self_contained": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
