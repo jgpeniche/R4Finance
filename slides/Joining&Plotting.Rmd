@@ -384,7 +384,14 @@ is <- here('slides','data','template.xlsx') %>%
   pivot_wider(names_from = concept, values_from = value) %>% 
   janitor::clean_names() %>% 
   mutate(date = lubridate::mdy(date),
-         nm = net_income/revenue) %>% 
+         nm = net_income/revenue)
+
+margenes <- is %>%
+  summarise(mrgn_max = max(nm),
+            mrgn_min = min(nm),
+            mrgn_prom = mean(nm))
+
+is <- is %>% 
   pivot_longer(-date)
 
 ```

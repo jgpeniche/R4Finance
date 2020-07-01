@@ -331,7 +331,7 @@ class: center, middle
 
 --
 
-&lt;div class="countdown" id="timer_5ef6d11d" style="right:0;bottom:0;" data-warnwhen="0">
+&lt;div class="countdown" id="timer_5efcbee3" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">15</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div><
 
@@ -353,7 +353,14 @@ is &lt;- here('slides','data','template.xlsx') %&gt;%
   pivot_wider(names_from = concept, values_from = value) %&gt;% 
   janitor::clean_names() %&gt;% 
   mutate(date = lubridate::mdy(date),
-         nm = net_income/revenue) %&gt;% 
+         nm = net_income/revenue)
+
+margenes &lt;- is %&gt;%
+  summarise(mrgn_max = max(nm),
+            mrgn_min = min(nm),
+            mrgn_prom = mean(nm))
+
+is &lt;- is %&gt;% 
   pivot_longer(-date)
 ```
     </textarea>
