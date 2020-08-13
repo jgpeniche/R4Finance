@@ -1,0 +1,341 @@
+---
+title: "R 4 Finance"
+subtitle: "POW & Reading"
+author: "Gibrán Peniche"
+date: "(versión 0.0.1) - 2020/06/26"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css", "style.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: TRUE
+      countIncrementalSlides: TRUE
+      self_contained: TRUE
+      ratio: '16:9'
+    seal: false
+editor_options: 
+  chunk_output_type: console
+---
+class: title-slide, right, middle
+.pull-left[ `r knitr::include_graphics( 'figs/bottom_img.png') `]
+<br>
+<br>
+<br>
+
+# R4Finanace
+## Datos Financieros
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/07/24
+####  <i class="fab fa-github"></i> [jgpeniche](https://github.com/jgpeniche)
+####  <i class="fab fa-twitter"></i> [PenicheGibran](https://twitter.com/PenicheGibran)
+####  <i class="fab fa-google"></i> jgpeniche@gmail.com
+---
+
+# Recap
+
+```{r setup, include=FALSE}
+
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+library(tidyquant)
+
+```
+--
+
+- Exploramos usos adicionales de variables cualitativas
+
+--
+
+- Exploramos una manera de generar reportes a través de RMarkdown
+
+---
+
+# Agenda
+
+--
+
+1. Productos de Datos
+
+--
+
+2. Manipulación de datos financieros utilizando `tidyquant`
+
+---
+
+class: inverse, center, middle
+# 1
+
+--
+
+# Productos de datos
+
+---
+
+# Productos de datos
+
+--
+
+- ¿Cuál es el fin último de un analista de datos?
+
+--
+
+**R:** Proveer de información relevante para la toma de decisiones
+
+--
+
+- El espectro de aactividad de un Data Sciencitist comprende desde el *back - end* (recopilación / limpieza / análisis exploratorio/ ajuste de modelos) hasta el *front - end* apliación/ página web / documento que iteractue con el usuario final
+
+--
+
+- Tus resultados NO sirven de nada si tienes que ir de puerta en puerta con tu editor de texto mostrando tus resultados
+
+---
+
+class: center, middle
+# Tarea:
+
+--
+
+### Exportar el archivo `solvencia.rmd` a formato PDF desde RStuio (HINT: Abre un nuevo documento de RMarkdown, selecciona formato PDF y descarga las dependencias que arroja el error de la consola de RStdudio. OJO: Tarda alredor de 2 hrs)
+
+---
+
+class: inverse, center, middle
+# 2
+
+--
+
+# Manipulando datos finacieros
+
+---
+
+# `Tidyquant`
+
+--
+
+- Estaría excelente poder importar datos finacieros sin necesidad de pasar por el dato intemedio de importar un archivo csv
+
+--
+
+- La manipulación/importación de datos finacieros en formato tidy se realiza a través de la libreria `tidyquant`
+
+--
+
+- `Tidyquant` está construido sobre librerias preexistentes `Quantmod`, `PortfolioAnalytics`, `zoo`,`xts`, etc. 
+
+--
+
+- Las funciones de estas liberias las incorpora a métodos para que podamos manipular esta información en el cntexto de tidy data
+
+---
+
+# Importar datos financieros
+
+
+--
+
+En `Tidyquant` importamos datos financieros/económicos con la función `tq_get()` que está construida sobre `Quantmod::getSymbols()`
+
+--
+
+.pull-left[ 
+```{r tidyquant1, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidyquant)
+
+tesla <- 'TSLA' %>% 
+  tq_get(from = '2019-01-01',
+         to = '2020-01-01')
+
+```
+]
+
+.pull-right[
+```{r tidyquant2, echo=FALSE}
+tesla %>% glimpse()
+
+```
+
+
+]
+
+--
+
+Noten que por default nuestro df, incluye una columna llamada `symbol`
+
+--
+
+**OJO** La convención entre los científicos de datos es que las fechas deben estar en formato YYYY/MM/DD
+
+---
+
+# Importar datos financieros de múltiples activos
+
+--
+
+.pull-left[ 
+```{r tidyquant3, warning=FALSE, message=FALSE}
+tesla <- c('TSLA', 'SPY') %>% 
+  tq_get(from = '2019-01-01',
+         to = '2020-01-01')
+
+```
+]
+
+.pull-right[
+```{r tidyquant4, echo=FALSE}
+tesla %>% glimpse()
+
+```
+
+]
+
+--
+
+Noten que al importar más de activo el df que regresa tidyquant por default está en formato `long`
+
+---
+
+# Un ejemplo sin tidyquant
+
+--
+
+Generalmente en la rama de asset pricing, nos interesa calcular los retornos de los precios de un activo ¿Cómo calculariamos esto sin disponer de tidyquant?
+
+--
+
+```{r tiqyduant5, message=FALSE, warning=FALSE}
+
+tsla <- 'TSLA' %>% 
+  quantmod::getSymbols(from = '2019-01-01', to = '2020-01-01', 
+                       env = NULL) %>% 
+  zoo::fortify.zoo() %>% 
+  as_tibble() %>% 
+  janitor::clean_names() %>% 
+  rename(open = tsla_open,
+         close = tsla_close,
+         volume = tsla_volume,
+         adjusted = tsla_adjusted,
+         high = tsla_high,
+         low = tsla_low) %>%
+  mutate(return = adjusted/lag(adjusted) -1) %>% 
+  group_by(index = lubridate::floor_date(index, 'month')) %>% 
+  summarise(return = mean(return)) %>% 
+  mutate(symbol = 'tsla') 
+  
+
+
+```
+
+---
+
+# Un ejemplo sin tidyquant 
+
+```{r tiqyduant6, message=FALSE, warning=FALSE}
+spy <- 'SPY' %>% 
+  quantmod::getSymbols(from = '2019-01-01', to = '2020-01-01', 
+                       env = NULL) %>% 
+  zoo::fortify.zoo() %>% 
+  as_tibble() %>% 
+  janitor::clean_names() %>% 
+  rename(open = spy_open,
+         close = spy_close,
+         volume = spy_volume,
+         adjusted = spy_adjusted,
+         high = spy_high,
+         low = spy_low) %>% 
+  mutate(return = adjusted/lag(adjusted) -1) %>%
+  group_by(index = lubridate::floor_date(index, 'month')) %>% 
+  summarise(return = mean(return)) %>% 
+  mutate(symbol = 'spy')
+
+
+assets <- tsla %>% 
+  bind_rows(spy)
+
+```
+---
+
+# Un ejemplo con tidyquant
+
+Como notamos, es muy laborioso y además solo calculamos la media aritmética de los retornos.
+
+--
+
+Calcular la media geométrica $^{\frac{1}{n}}\sqrt{\prod_{i=1}^n(1+r_i)}-1$ es mucho más complicado
+
+--
+
+Con `tidyquant` todo el código anterior es equivalente a
+
+```{r tidyquant7, warning=FALSE,message=FALSE}
+
+assets <- c('SPY', 'AAPL','NFLX') %>% 
+  tq_get(from = '2019-01-01',
+         to = '2020-01-01') %>% 
+  group_by(symbol) %>% 
+  tq_mutate(select = 'adjusted',
+            mutate_fun = monthlyReturn,
+            type = 'log',
+            col_rename = 'return')
+
+```
+--
+
+Y además podemos especificar si al agregar la infromación lo haremos utilizando el promedio geométrico o el aritmético
+---
+
+# Más sobre tidyquant
+
+--
+
+Además de permitirnos descargar información financiera de yahoo finance podemos descargar infromación económica de la base de datos de la FRED
+
+--
+
+Para esto tenemos que especificar la opcion de `tq_get(get = 'economic data')`
+
+--
+
+Antes también se podían descargar estados financieros de Google finance, pero esta opción ha quedado deshabilidata ya que Google ya no provee de este servicio
+
+---
+---
+# Caso práctico
+--
+
+1. Utiliza `tq_get()` para descargar infromación financiera de 3 activos desde yahoo finance
+
+--
+
+2. utilizando `tq_mutate()` crea una columna llamada `rol_vol` que contenga una ventana de 20 dias de volatilidad de los log-retornos trimestrales (HINT: Revisa la documentación de la función `rollapply`)
+
+--
+
+3. Crea una visuliación donde grafiques la ventana de volatilidad de 20 dias para cada uno de los activos
+
+--
+
+```{r count, echo=FALSE}
+
+countdown::countdown(minutes = 10L)
+
+```
+---
+
+# Solución
+
+```{r ej1, warning=FALSE, message=FALSE}
+rol_vol <- c('SPY', '^MXX') %>% 
+  tq_get() %>% 
+  group_by(symbol) %>% 
+  tq_mutate(select = adjusted,
+            mutate_fun = quarterlyReturn,
+            type = 'log',
+            col_rename = 'return')
+
+
+```
+

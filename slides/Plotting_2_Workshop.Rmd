@@ -1,0 +1,511 @@
+---
+title: "R 4 Finance"
+subtitle: "POW & Reading"
+author: "Gibrán Peniche"
+date: "(versión 0.0.1) - 2020/06/26"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css", "style.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: TRUE
+      countIncrementalSlides: TRUE
+      self_contained: TRUE
+      ratio: '16:9'
+    seal: false
+editor_options: 
+  chunk_output_type: console
+---
+class: title-slide, right, middle
+.pull-left[ `r knitr::include_graphics( 'figs/bottom_img.png') `]
+<br>
+<br>
+<br>
+
+# R4Finanace
+## Joining 2 & Workshop
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/07/16
+####  <i class="fab fa-github"></i> [jgpeniche](https://github.com/jgpeniche)
+####  <i class="fab fa-twitter"></i> [PenicheGibran](https://twitter.com/PenicheGibran)
+####  <i class="fab fa-google"></i> jgpeniche@gmail.com
+---
+
+# Recap
+
+```{r setup, include=FALSE}
+
+options(htmltools.dir.version = FALSE)
+library(magrittr)
+library(lubridate)
+library(knitr)
+library(here)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readxl)
+
+is <- here::here('slides','data','template.xlsx') %>% 
+  read_excel(sheet = 'is') %>% 
+  pivot_longer(-concept, names_to = 'date' ) %>% 
+  pivot_wider(names_from = concept, values_from = value)%>% 
+  mutate(date = mdy(date)) %>% 
+  janitor::clean_names()
+
+esf <- here('slides','data','template.xlsx') %>% 
+  read_excel(sheet = 'bs') %>% 
+  pivot_longer(-concept, names_to = 'date' ) %>% 
+  pivot_wider(names_from = concept, values_from = value) %>% 
+  mutate(date = mdy(date)) %>% 
+  janitor::clean_names()
+
+
+liq <- esf %>% 
+  mutate(current = total_current_assets/total_current_liabilities,
+         acid_test = (cash_cash_equivalents_sti + accounts_notes_receiv)/total_current_liabilities,
+         cash2assets = cash_cash_equivalents_sti/total_current_assets,
+         cash2liabilities = cash_cash_equivalents_sti/ total_current_liabilities) %>% 
+  select(date, current, acid_test, cash2assets, cash2liabilities)
+
+lev <- esf %>% 
+  mutate(d2e = total_liabilities/total_equity)
+
+is_esf <- left_join(is,esf, by = 'date')
+
+liq <- liq %>% 
+  mutate(analisis = 'Liquidéz')
+
+lev <- lev %>% 
+  mutate(analisis = 'Apalancamiento')
+
+rot <- is_esf %>% 
+  mutate(inv_prom = .5*(inventories + lag(inventories,1)),
+         cpc_prom = .5*(accounts_notes_receiv + lag(accounts_notes_receiv,1) ),
+         cpp_prom = .5*(payables_accruals + lag(payables_accruals,1)),
+         rot_inv = cost_of_revenue/ inv_prom,
+         rot_cpc = cost_of_revenue/ cpc_prom,
+         rot_cpp = cost_of_revenue/ cpp_prom) %>% 
+  select(date, rot_inv, rot_cpc, rot_cpp) %>% 
+  mutate(analisis = 'Rotación')
+
+```
+--
+
+- Aprendimos a utilizar `left_join()`, `right_join()`, `full_join()`, `anti_join()` para "consolidar" bases de datos
+
+--
+
+- Aprendimos la estructura básica para construir una visualización partiendo de un `df` en formato *tidy*
+
+--
+
+```
+df %>% 
+  ggplot2() +
+  aes() +
+  geom_something() +
+  labs() +
+  theme()
+
+```
+--
+
+- Aprendimos como cambiar algunos atributos de color básicos, y a usar los temas de la libreria `ggthemes`
+
+---
+
+# Agenda
+
+--
+
+1. Relación entre df's en formato *long* y las visualizaciones
+
+--
+
+2. Facetas
+
+--
+
+3. Temas personzalizados
+
+--
+
+4. Caso de Estudio
+
+---
+
+class: inverse, center, middle
+# 1
+--
+
+# Relación entre df's en formato *long* y las visualizaciones
+
+---
+
+# Variables cualitativas 
+
+--
+
+- Existen dos tipos de información sobre las variables
+
+--
+
+  1. Cuantitativa: Que se relaciona con magnitudes (velocidad, peso, precio, retornos, etc)
+
+--
+
+  2. Cualitativa: Que se relaciona con atributos no medibles (color, tipo, condición física, etc)
+
+--
+
+- Como ya habíamos comentado el tipo de objeto en R que nos permite codificar texto como variables cualitativas son los factores
+
+--
+
+Esto tiene relevancia ya que ggplot2 tiene un tratamiento especial para este tipo de variables
+
+---
+
+# Un ejemplo práctico
+
+--
+
+- Consideremos el siguiente df que contiene el análisis de liquidez para *LAB B* de la semana pasada
+
+--
+
+```{r ej1, echo=FALSE}
+
+liq %>% glimpse()
+
+```
+
+---
+
+# Un ejemplo práctico
+
+--
+
+- A partir de esta infromación quisieramos contruir un gráfico de líneas con la evolución histórica de las razones de liquidez
+
+--
+
+.pull-left[
+```{r ej2, eval=FALSE}
+liq %>% 
+  ggplot() +
+  aes(x = date) +
+  geom_line( aes(y = current), col = 'green') +
+  geom_line( aes(y = acid_test), col = 'blue') +
+  geom_line( aes(y = cash2assets), col = 'orange') +
+  labs(title = 'Análisis de liquidez',
+       subtitle = 'LAB B') +
+  theme_minimal()
+
+
+
+```
+]
+
+.pull-right[
+```{r ej3, echo=FALSE, out.height=400}
+liq %>% 
+  ggplot() +
+  aes(x = date) +
+  geom_line(aes(y = current), col='green') +
+  geom_line(aes(y = acid_test), col='blue') +
+  geom_line(aes(y = cash2assets), col='orange') +
+  labs(title = 'Análisis de liquidez',
+       subtitle = 'LAB B') +
+  theme_minimal()
+```
+]
+
+---
+
+# Un ejemplo práctico
+
+**PREGUNTA:** ¿Existe alguna maner más sencilla de crear esta visuzliación y además agregar una leyenda automática?
+
+--
+
+**R:** Consideren el siguiente long df
+
+```{r long}
+liq_long <- liq %>% 
+  pivot_longer(-c(date, analisis), names_to = 'ratio') %>% 
+  mutate(ratio = factor(ratio))
+
+liq_long %>% glimpse()
+
+```
+
+```{r longs, echo=FALSE}
+rot_long <- rot %>% 
+  pivot_longer(-c(date, analisis), names_to = 'ratio') %>% 
+  mutate(ratio = factor(ratio))
+
+lev_long <- lev %>% 
+   pivot_longer(-c(date, analisis), names_to = 'ratio') %>% 
+  mutate(ratio = factor(ratio))
+
+```
+
+---
+
+# Un ejemplo práctico
+
+--
+
+Y ahora con ggplot
+
+--
+
+.pull-left[
+```{r long_plot, eval=FALSE}
+
+liq_long %>% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Liquidity Análisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+```
+]
+
+--
+
+.pull-right[
+```{r long_plot_eval, echo=FALSE, out.height=400}
+liq_long %>% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Liquidity Análisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+```
+]
+
+---
+
+# Ejemplo práctico
+
+De esta manera, utilizando datos en formto long (que en esta ocasión coinciden con el formato tidy), podemos generar leyends automáticas
+
+---
+
+class: inverse, center, middle
+# 2
+
+--
+
+# Facetas
+
+---
+
+# Más usos para las variables cualitativas
+
+--
+
+- Consideremos los objetos `rot_long` y `lev_long` construidos de la misma manera que `liq_long`
+
+--
+
+```{r ratios}
+ratios <- liq_long %>% 
+  bind_rows(rot_long) %>% 
+  bind_rows(lev_long)
+
+ratios %>% glimpse()
+```
+
+--
+
+- Estaría increible crear un sola visualización con todos los análisis, esto se realiza con `facet_wrap()` utilizando la variable cualitativa *análisis*
+
+---
+
+# Más usos para las variables cualitativas
+
+--
+
+.pull-left[
+```{r facet, eval=FALSE}
+
+ratios %>% 
+  ggplot() +
+  aes(x = date, y = value, fill = ratio) +
+  geom_bar(position = 'dodge', stat = 'identity') +
+  facet_wrap(.~ analisis, scales = 'free') +
+  labs(title = 'Análisis financiero',
+       subtitle = 'LAB B') +
+  theme_minimal()
+```
+
+]
+
+--
+
+.pull-right[
+```{r facet_eval, echo=FALSE, out.width=400, warning=FALSE}
+ratios %>% 
+  ggplot() +
+  aes(x = date, y = value, fill = ratio) +
+  geom_bar(position = 'dodge', stat = 'identity') +
+  facet_wrap(.~ analisis, scales = 'free') +
+  labs(title = 'Análisis financiero',
+       subtitle = 'LAB B') +
+  theme_minimal()
+```
+]
+
+---
+
+# `patchwork`
+
+--
+
+Otra opción sería guardar cada visualización en un objeto y luego desplegarlas en cierto orden, para eso usamos la librería `patchwork`
+
+--
+
+```{r save_plots1}
+p1 <- liq_long %>% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Liquidity Análisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+
+```
+
+```{r save_plots2}
+p2 <- rot_long %>% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Turnover Analisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+
+p3 <- lev_long %>% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Leverage Análisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+```
+
+--
+
+Construimos `p2` y `p3` con *rot_long* y *lev_long*
+
+---
+
+# `patchwork`
+
+--
+
+.pull-left[
+```{r patchwork1, eval=FALSE}
+library(patchwork)
+(p1 + p2)/p3
+
+```
+
+]
+
+--
+
+.pull-right[
+
+```{r patchwork2, echo=FALSE, out.height=400, message=FALSE, warning=FALSE}
+library(patchwork)
+(p1 + p2)/p3
+```
+
+]
+
+---
+
+class: inverse, center, middle
+# 4
+
+--
+
+# Caso de estudio
+
+---
+
+# Caso de Estudio
+
+--
+
+1. Crear una nueva carpeta en tus documentos llamada `analisis_solvencia_tu_nombre`
+
+  + Dentro de esta carpeta crea un nuevo folder llamado `data` y copia en este directorio el archivo `template.xlsx` con el que hemos estado trabajando
+
+--
+
+2. Abre RStudio y crea un nuevo proyecto en la carpeta que acabas de crear que se llame `analisis_solvencia`
+
+--
+
+3. En RStudio File > New File > RMarkdown, esto abrirá un diálogo
+
+  + Title: 'Análisis de Solvencia Genoma Lab'
+  + Author: Tu nombre
+  + Verifica que la opción **HTML** esté seleccionada
+  + Click en *Ok*
+
+---
+
+4. Esto va a generar un nuevo archivo en el editor, oprime la opción **knit** y guardalo en la misma carpeta del proyecto con el nombre `reporte_labb`. Nota que al guardar se genera una ventana nueva donde se despliega un documento
+
+--
+
+5. Regresa al editor de RStudio e inspecciona el código del archivo
+
+--
+
+6. Importa las pestañas `solv`, `solv2` y `solv3` a R, pásalas a formato long (`tidyr::pivot_wider()`) y trnasforma los datos al tipo de información correcto (fecha a objetos tipo *date* y variables cualitativas a tipo *factor*). Para checar cual es el key-shortcut para crear code-chunks: Tools > Keyboard Shortcut help y busca `insert chunk`
+
+--
+
+7. Ya que los tres objetos estén en formato long, crea un nuevo objeto llamado `solvency` utilzando `bind_rows`
+
+--
+
+8. Redacta una breve introducción al documento de que es un análisis de solvencia de acuerdo al capítulo 12 del libro que les compartí
+
+--
+
+9. Realiza una visulización de los márgenes de solvencia para Genoma Lab en formato ejecutivo. Ojo la leyenda debe estar en el fondo, y los colores del título y subtítulo deben de ser diferentes (HINT: googlealo 'change title color ggplot2')
+---
+
+10. Vuelve a oprimir *knit* y verifica que no haya ningún error, ojo el documento html **unicamente debe incluir la introducción y el gráfico**, no debe aparecer todo el código de limpieza, ni el que generó el plot
+
+--
+
+11. Comprime la carpeta y envíame el .zip

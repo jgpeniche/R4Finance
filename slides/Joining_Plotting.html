@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R 4 Finance</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Gibrán Peniche" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: title-slide, right, middle
+.pull-left[ &lt;img src="figs/bottom_img.png" width="1017" /&gt;]
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+# R4Finanace
+## Joining &amp; Plotting
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/06/26
+####  &lt;i class="fab fa-github"&gt;&lt;/i&gt; [jgpeniche](https://github.com/jgpeniche)
+####  &lt;i class="fab fa-twitter"&gt;&lt;/i&gt; [PenicheGibran](https://twitter.com/PenicheGibran)
+####  &lt;i class="fab fa-google"&gt;&lt;/i&gt; jgpeniche@gmail.com
+---
+
+# Recap
+
+
+--
+
+- Importamos datos con RStudio
+
+--
+
+- Platicamos del Project Oriented Work flow y sus implicaciones para la **Reproducibilidad** de nuestro trabajo
+  
+--
+
+- `here` y su conexión con los archivos `.Rproj`
+  
+---
+
+# Solución Tarea
+
+
+1 Importa la hoja *bs* y trasponerla usando `tidyr`
+
+--
+
+
+```r
+esf &lt;- here('slides','data','template.xlsx') %&gt;% 
+  read_excel(sheet = 'bs') %&gt;% 
+  pivot_longer(-concept, names_to = 'date' ) %&gt;% 
+  pivot_wider(names_from = concept, values_from = value) %&gt;% 
+  mutate(date = mdy(date)) %&gt;% 
+  janitor::clean_names()
+```
+
+---
+
+# Solución Tarea
+
+2 Realiza un análisis de liquidez, rotación y apalancamiento
+
+--
+
+
+```r
+liq &lt;- esf %&gt;% 
+  mutate(current = total_current_assets/total_current_liabilities,
+         acid_test = (cash_cash_equivalents_sti + accounts_notes_receiv)/total_current_liabilities,
+         cash2assets = cash_cash_equivalents_sti/total_current_assets,
+         cash2liabilities = cash_cash_equivalents_sti/ total_current_liabilities) %&gt;% 
+  select(date, current, acid_test, cash2assets, cash2liabilities)
+
+
+lev &lt;- esf %&gt;% 
+  mutate(d2e = total_liabilities/total_equity)
+```
+
+---
+
+# Solución tarea
+
+Por otro lado las rotaciones se calculan como `\(\frac{Ventas \hspace{.25cm} Netas}{Concepto \hspace{.25cm} Promedio }\)`
+
+--
+
+Tenemos estas variables en dos bases de datos separadas (*is* y *esf*)
+
+--
+
+Ademas estos cálculos requieren de operaciones recursivas
+
+--
+
+Una solución es extraer esas variables, guardarlas en nuevos objetos y luego introducirlas en un ciclo *for*
+
+--
+
+¿No sería bueno poder hacer esto en el contexto del `tidyverse` (dplyr, tidyr, magrittr, etc...)
+
+---
+
+class: center, middle
+# Continuará...
+
+---
+
+# Agenda
+
+--
+
+1. Tidyverse 
+
+--
+
+2. Data Joining
+
+--
+
+3. Gramática de las visualizaciones
+
+--
+
+4. `ggplot2`
+
+---
+
+class: inverse, center, middle
+# 1
+
+--
+
+## Tidyverse
+
+---
+
+# Tidyverse
+
+--
+
+### Ya habíamos platicado sobre la impotancia de de *Tidy Data* en la estructura de trabajo de un *Quant Data Scientist* y en general de cualquier Científico de Datos
+
+--
+
+### Esta manera de trabajar no solo tiene ventajas semántico-lógicas en la manera en que interpretamos los datos, sino que también *homegeiniza* la manera en que trabajamos
+
+--
+
+### En la comunidad de R existe un compilado de librerias que están construidas precisamente sobre las bases de *Tidy Data* conocida como *Tidyverse*
+
+---
+
+# Tidyverse
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;img src="figs/tidyverse.jpg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Tidyverse
+
+&lt;img src="figs/tidyverse_all.png" width="500" height="500" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Tidyverse
+
+### Este es el esquema de trabajo por que el que, personalmente, prefiero R que Python, ya que no solo abarca las primeros pasos de 1) Lectura; 2) Transformación: y 3) Visualización...
+
+--
+
+### Ahora se ha expandido hacia todas las herramientas de modelado con `tidymodels`
+
+--
+
+### Además, el seguir este esquema y su migración hacia otros lenguages de alguna manera *homegeiniza* la ciencia de datos
+
+---
+
+class: inverse, center, middle
+# 2
+
+--
+
+## Data Joining
+
+---
+
+# Data Joining
+
+--
+
+### El problema de la consolidación de bases de datos no es exclusivo de las finanzas
+
+--
+
+### Para poder "consolidar" una serie de bases de datos, rquerimos de dos cosas
+
+--
+
+### **1** La Tercera Forma Normal de Codd
+
+--
+
+### **2** Una *llave*
+
+---
+
+# Data Joining
+
+
+.pull-left[
+&lt;table&gt;
+&lt;caption&gt;Tabla 1&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; key &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; W &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+&lt;table&gt;
+&lt;caption&gt;Tabla 2&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; key &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Y &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Z &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+]
+
+&lt;br&gt;
+### **Problema** ; "Consolidar" *Tabla 1* y *Tabla 2* en un objeto *Tabla Global*
+---
+
+# Data joining
+
+--
+
+Noten en primer lugar que ambas bases están en formato *tidy* y comparten un 2 *identificador* " que distingue univocamente a cada observación (**key**)
+
+--
+
+Esto es equivalente a una **operación de conjuntos** (unión, intersección, diferencia) dejando el *identificador* **FIJO** 
+
+--
+
+En el contexto de *Tidyverse* se realiza mediante las funciones de `left_join()`, `right_join()`, `full_join()`y `anti_join()` de `tidyr`
+--
+
+```
+
+tabla_global &lt;- left_join(tabla1, tabla2, by = 'key')
+
+```
+
+--
+
+&lt;table&gt;
+&lt;caption&gt;Tabla Global&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; key &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; W &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Y &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Z &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; obs4 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+---
+
+class: center, middle
+# Pregunta
+
+--
+
+## ¿Diferencia entre la familia de `_join`'s?
+
+--
+
+## Chelas al que responda...
+
+--
+
+## **REVISEN LA DOCUMENTACIÓN**
+
+---
+
+# Solución tarea
+
+
+```r
+is_esf &lt;- left_join(is,esf, by = 'date')
+```
+
+&lt;br&gt;
+
+### Ya tenemos toda la infromación en un solo df pero, ¿y las operaciones recursivas?
+
+---
+
+# Solución tarea
+
+**BONUS:** `dplyr::lag()`
+
+
+```r
+rot &lt;- is_esf %&gt;% 
+  mutate(inv_prom = .5*(inventories + lag(inventories,1)),
+         cpc_prom = .5*(accounts_notes_receiv + lag(accounts_notes_receiv,1) ),
+         cpp_prom = .5*(payables_accruals + lag(payables_accruals,1)),
+         rot_inv = cost_of_revenue/ inv_prom,
+         rot_cpc = cost_of_revenue/ cpc_prom,
+         rot_cpp = cost_of_revenue/ cpp_prom) %&gt;% 
+  select(date, rot_inv, rot_cpc, rot_cpp) %&gt;% 
+  mutate(analisis = 'Rotación')
+```
+
+
+
+
+---
+
+class: inverse, center, middle
+# 3
+
+--
+
+## Gramática de las visualizaciones
+
+---
+
+# Visualizaciones
+
+--
+
+### La importancia de resumenes visuales no pasar desapercibida para ninguno
+
+--
+
+### En nuestro ejemplo de análisis de *liquidéz*, *Rotación* y *Apalancamiento* sería deseable poder comunicar nuestros hallazgos de forma visual
+
+---
+
+# Visualizaciones en otros lenguages
+
+--
+
+Otra de las razones por la que prefiero R sobre Python es `ggplot2`, pero antes de ver una visuliación en este paquete, veamos como se generan las visualizaciones en la mayoría de los lenguajes
+
+--
+
+2 Grandes Grupos
+
+### Grupo 1
+
+
+```r
+plot(x = varx, y = varY)
+RandomFunctionAddingSomeOption()
+AnotherRandomFunctionAddingsomeOption()
+
+SomeRandomCode()
+ThatHasNothing()
+ToDoWithThePlot()
+
+MoreRandomeFunctionsForThePlot()
+```
+---
+
+
+# Visualizaciones en otros lenguages
+
+
+Otra de las razones por la que prefiero R sobre Python es `ggplot2`, pero antes de ver una visuliación en este paquete, veamos como se generan las visualizaciones en la mayoría de los lenguajes
+
+2 Grandes Grupos
+
+### Grupo 2
+
+
+```r
+plot(x = varX, 
+  y = varY,
+  plottype = someplot,
+  optionA = ... ,
+  optionB = ... ,
+  optionC = ... ,
+  ...)
+```
+
+---
+
+class: center, middle
+### Personalmente encuentro ambos esquemas poco intuitivos y dificiles de aprender
+
+---
+
+# Gramática de las Visualizacion
+
+--
+
+El paquete `ggplot2` de Hadley Wikham es una implementación del libro *Grammar of Graphics* de Leland Wilkinson 
+
+--
+
+A grandes rasgos, `ggplot2` está construido a partir de la premisa de que las visualizaciones tienen su propia gramática y con esta herramienta (que por cierto es compatible con ` %&gt;% ` es parte del Tidyverse) construimos las visualizaciones por **capas** (como los ogros y las cebollas)
+
+--
+
+1. **Variables**: Los elementos del df que deseamos graficar (*aes*)
+
+--
+
+2. **Geometrías**: El tipo de función con la que vamos a mapear dichas variables (*geom_*)
+
+--
+
+3. **Facetas**: Si existe para mapear la visualización de acuerdo a alguna otra variable categórica de interés (*face_*)
+
+--
+
+4. **Tema**: La apariencia de la visualización (*theme*)
+
+--
+
+Todo esto anidado con el signo `+` indicando que se le está agregando una característica a la visualización
+
+---
+
+class: inverse, center, middle
+# 4
+
+--
+
+## `ggplot2`
+
+---
+
+# `ggplot2`
+
+--
+
+### Estructura Básica
+
+
+```r
+library(ggplot2)
+
+df %&gt;% 
+  ggplot() + # Ojo no es un pipe
+  aes(x = VarA, y = VarB) +
+  geom_something( aes( col = VarC, fill = VarD, shape = VarE, ... ) ) +
+  facet_wrap(.~ VarF) +
+  theme_sometheme() +
+  theme(
+    # Opciones que tal vez quieras mover
+  ) +
+  labs(
+    title = 'Título',
+    subtitle = 'Subtítulo',
+    caption = 'Texto en el fondo',
+    x = 'VarA',
+    y = 'VarB'
+  )
+```
+
+---
+
+# Un ejemplo práctico
+
+**Problema:** Visulizar el nivel de ventas por fecha de nuestro objeto `is` con una gráfica de línea y puntos
+
+--
+
+.pull-left[
+
+
+```r
+is %&gt;% 
+  ggplot() +
+  aes(x = date, y = revenue) +
+  geom_line() +
+  geom_point()
+```
+
+]
+
+--
+
+.pull-right[
+
+&lt;img src="Joining_Plotting_files/figure-html/ej2-1.png" height="400" /&gt;
+
+]
+
+---
+
+# Ejercicio
+
+--
+
+1. Cambia el **color** de la línea y los puntos
+
+--
+
+2. Agrega un título y cambia el nombre de los ejes a *Ventas* y *Fecha*
+
+--
+
+3. Agrega una geometría de columnas a la gráfica
+
+--
+
+4. Cambia el tema del gráfico por `theme_minimal()`
+
+--
+
+**HINT:** BUSCA LA SOLUCIÓN EN GOOGLE (MÁS RECOMENDABLE) O REVISA LA DOCUMENTACIÓN DE GGPLOT2
+
+--
+
+"How to do some stuff in ggplot2" (De preferencia usen links de stackoverflow)
+
+--
+
+
+```r
+countdown::countdown(minutes = 10L)
+```
+
+<div class="countdown" id="timer_5efe2313" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+# Solución
+
+.pull-left[
+
+
+```r
+is %&gt;% 
+  ggplot() +
+  aes(x = date, y = revenue) +
+  geom_bar(fill = '#5C009E',
+           stat = 'identity') +
+  geom_line( col = 'green',
+             size = .8) +
+  geom_point( col = '#169111',#Hexagesadecimal
+              size = .8) + 
+  theme_minimal() +
+  labs(
+    title = 'Ventas Trimestrales',
+    x = 'Fecha',
+    y = 'Ventas'
+  )
+```
+
+
+]
+
+--
+
+.pull-right[
+
+&lt;img src="Joining_Plotting_files/figure-html/ej4-1.png" height="400" /&gt;
+
+
+]
+
+---
+
+# Ejercicio
+
+--
+
+1. Interpreta [esta respuesta](https://stackoverflow.com/questions/25070547/ggplot-side-by-side-geom-bar) y crea el mismo gráfico para *ventas*, *utilidad bruta*, *utilidad operativa* y *utilidad neta* (HINT: `reshape2::melt()` es equivalente a `tidyr::pivot_longer()`)
+
+--
+
+2. Cambia la escala de de colores con `ggplot::scale_fill_manual()` con un vector de 4 colores en formato hexagesadecimal que obtengas de [Adobe Color Wheel](https://color.adobe.com/es/create/color-wheel)
+
+--
+
+3. Encuentra la manera de poner un signo de dólar en el eje y
+
+--
+<div class="countdown" id="timer_5efe2329" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+# Solución
+
+--
+
+
+```r
+library(scales)
+
+is %&gt;% 
+  select(date, revenue, gross_profit, operating_income, net_income) %&gt;% 
+  pivot_longer(-date, names_to = 'variable') %&gt;% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+*  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+  scale_color_manual(values = c('#53B324','#B309AF','#A52AFB','#B145FF')) +
+  theme_minimal() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+```
+
+---
+
+# Solución
+
+&lt;img src="Joining_Plotting_files/figure-html/ej6-1.png" height="500" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Solución (Bonus \# 1)
+ 
+--
+
+Como pudieron ver una de las ventajas del formato *long* que aprendimos hace un par de clases es ideal para generar visualizaciones con `ggplot2`
+
+--
+
+Ahora, sería deseable que nuestras barras estuvieran ordenadas de manera decreciente esto se logra con `forcats::fct_reorder()` (que de hecho es parte del tidyverse)
+
+--
+
+
+```r
+is %&gt;% 
+  select(date, revenue, gross_profit, operating_income, net_income) %&gt;% 
+  pivot_longer(-date, names_to = 'variable') %&gt;% 
+*  mutate(variable = forcats::fct_reorder(variable, value, .desc = TRUE)) %&gt;% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+  scale_fill_manual(values = c('#53B324','#B309AF','#A52AFB','#B145FF')) +
+  theme_minimal() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+```
+
+---
+
+# Solución (Bonus \# 1)
+
+
+&lt;img src="Joining_Plotting_files/figure-html/ej8-1.png" height="500" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Factores
+
+--
+
+### Un tipo especial de *string* son los `factores`, que es una manera de declarar una variable **cualitativa** de manera **explícita** en R
+
+--
+
+### Los factores pueden (o no ) tener cierta *jerarquía* a la que se le conoce como `niveles`
+
+
+---
+
+# Solución (Bonus \# 2)
+
+--
+
+`ggplot2` es un proyecto *MUY* grande y hay librerias complentarias con *temas* y extensiones (como *animaciones* ó *mapas*) que conservan esta idea central de la gramática de las visualizaciones
+
+--
+
+Un ejemplo es `ggthemes`
+
+--
+
+
+```r
+library(ggthemes)
+
+is %&gt;% 
+  select(date, revenue, gross_profit, operating_income, net_income) %&gt;% 
+  pivot_longer(-date, names_to = 'variable') %&gt;% 
+  mutate(variable = forcats::fct_reorder(variable, value, .desc = TRUE)) %&gt;% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+*  theme_stata() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+```
+---
+
+# Solución (Bonus \# 2)
+
+&lt;img src="Joining_Plotting_files/figure-html/ej10-1.png" height="500" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: inverse, center, middle
+# \# generativeart
+
+--
+
+## `ggplot2` es tan poderoso y tan flexible que no solo es la herramienta por excelencia para crear visualizaciones
+
+--
+
+## Hay gente que se dedica a hacer visuliazaciones con fines estéticos utilizando R y ggplot2
+
+---
+
+# ¿Qué sigue?
+
+--
+
+1. Facetss
+
+--
+
+2. Elementos de `theme()` y creación de temas personalizados
+
+--
+
+3. Animaciones (?)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"self_contained": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

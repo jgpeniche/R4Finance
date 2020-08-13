@@ -1,0 +1,86 @@
+---
+title: "R4Finance"
+subtitle: "Estimación de ventas con tidymodels Workshop"
+author: "Gibrán Peniche"
+date: "2020-08-08"
+header-includes: 
+  - \usepackage{fancyhdr}
+output: 
+   pdf_document:
+    toc: FALSE
+    highlight: 'kate'
+editor_options: 
+  chunk_output_type: console
+mainfont: Bookman Old Style
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE) # Esta opci??n hace que por default se imprima el c??digo
+knitr::opts_chunk$set(warning = FALSE) # Estas dos opciones evitan que se impriman mensajes a la hora de generar el pdf
+knitr::opts_chunk$set(message= FALSE)
+knitr::opts_chunk$set(verbose = FALSE)
+
+#Estas L??neas sirven para ajustar tama??o y orientaci??n de las gr??ficas
+knitr::opts_chunk$set(fig.width=8)
+knitr::opts_chunk$set(fig.height=5)
+knitr::opts_chunk$set(fig.align='center')
+
+```
+
+
+
+\thispagestyle{empty} 
+\pagebreak
+\newpage
+\pagenumbering{arabic} 
+\fancyhead[L]{\thepage}
+\fancyhead[C]{4RFinance}
+\fancyhead[R]{}
+\fancyfoot[L]{}
+\fancyfoot[C]{Workshop 1}
+\fancyfoot[R]{}
+\pagestyle{fancy}
+\addtolength{\headheight}{1.0cm}
+\pagestyle{fancyplain}
+
+
+# El problema de estimación en el contexto de tidy models
+
+En el marco del análisis financiero, el problema principal para valuar una empresa es realizar la estimación de ventas futuras para posteriormente construir estdos financieros *pro-forma* y en última instnacia encontrar el precio objetivo de una acción. Esto con el fin de emitir una recomendación de *BUY*, *HOLD* o *SELL*.
+
+En esta sesión vas a estimar el nivel de ventas esperado para Microsoft Corporation utilizando como variable explicativa el PIB de Estados Unidos y sus estimaciones.
+
+
+**Instrucciones**
+
+1. Crea una nueva carpeta en tu computadora que se llame 'Estimación de ventas Microsoft". Crea dentro de esta carpeta un subdirectorio llamado "data" (donde debe ir el archivo de excel que recibieron) y otro llamado "src". 
+
+2. En RStudio crea un nuevo proyecto dentro de esta nueva carpeta
+
+3. En RStudio abre un nuevo archivo tipo Markdown html (que debes guardar en la carpeta de "src") que debes llamar "mcsft_ventas".
+
+4. Importa el archivo de excel a RStudio y ponlo en formato *tidy* (HINT: Te recomiendo que hagas cierto pre-procesamiento en excel, por ejemplo, eliminar filas vacias, cambiar el nombre de las columnas, etc.).
+
+5. Utilizando `tidyquant` importa del sitio de la FRED información trimestral del PIB de estados Unidos **sin desestacionalizar**
+
+6. Crea un nuevo objeto llamado "modelo" que contenga, las fecha, el nivel de ventas y el nivel del PIB de E.U.
+
+7. Reporta un scatter plot de ventas contra PIB y ajusta una linea de regresión sobre el gráfico (HINT: Googlea "add regression line to ggplot"). Comenta si es razonable suponer que existe una relación líneal entre estas dos variables
+
+8. A partir de este nueve objeto (modelo) utilizando `tiymodels` crea un grupo  de entranmiento al 75%
+
+9. Para el preprocesamiento scala los datos utilizando el framework de las lecturas sobre tidymodels.
+
+10. Ajusta un modelo ´lm´ de las ventas explicadas por el PIB utilizando tidymodels
+
+11. De este modelo reporta, los coeficientes (y su nivel de significancia), $R^2$, un histograma de residuales y un gráfico cuantil-cuantil normal. Concluye si el supuesto de normalidad es razonable y si el modelo que planteamos es util para predecir las ventas de microsoft.
+
+12. Realiza la predicción del modelo con el grupo de entrenamiento y reporta el MAPE.
+
+13. Busca predicciones para el comportamiento del PIB en Estados Enidos (Reportando tu fuente).
+
+14. Utilizando **todos** los datos y los niveles estimados que acabas de obtener estima 1 año de ventas triemstrales para microsft. Reportalas en un gráfico y en un df donde incluyas tu estimación puntual y tu estimación por regiones al 95% de confianza.
+
+15. Oprime "knit" y revisa que el archivo html se genere correctamente. OJO solamente debe ser visible aquellos resultados relevantes para el análisis, no debe aparecer código intermedio. 
+
+16. Comprime el archivo y enviamelo.

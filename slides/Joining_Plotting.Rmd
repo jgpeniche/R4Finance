@@ -1,0 +1,871 @@
+---
+title: "R 4 Finance"
+subtitle: "POW & Reading"
+author: "Gibrán Peniche"
+date: "(versión 0.0.1) - 2020/06/26"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css", "style.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: TRUE
+      countIncrementalSlides: TRUE
+      self_contained: TRUE
+      ratio: '16:9'
+    seal: false
+editor_options: 
+  chunk_output_type: console
+---
+class: title-slide, right, middle
+.pull-left[ `r knitr::include_graphics( 'figs/bottom_img.png') `]
+<br>
+<br>
+<br>
+
+# R4Finanace
+## Joining & Plotting
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/06/26
+####  <i class="fab fa-github"></i> [jgpeniche](https://github.com/jgpeniche)
+####  <i class="fab fa-twitter"></i> [PenicheGibran](https://twitter.com/PenicheGibran)
+####  <i class="fab fa-google"></i> jgpeniche@gmail.com
+---
+
+# Recap
+
+```{r setup, include=FALSE}
+
+options(htmltools.dir.version = FALSE)
+library(magrittr)
+library(lubridate)
+library(knitr)
+library(here)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readxl)
+
+is <- here::here('slides','data','template.xlsx') %>% 
+  read_excel(sheet = 'is') %>% 
+  pivot_longer(-concept, names_to = 'date' ) %>% 
+  pivot_wider(names_from = concept, values_from = value)%>% 
+  mutate(date = mdy(date)) %>% 
+  janitor::clean_names()
+```
+--
+
+- Importamos datos con RStudio
+
+--
+
+- Platicamos del Project Oriented Work flow y sus implicaciones para la **Reproducibilidad** de nuestro trabajo
+  
+--
+
+- `here` y su conexión con los archivos `.Rproj`
+  
+---
+
+# Solución Tarea
+
+
+1 Importa la hoja *bs* y trasponerla usando `tidyr`
+
+--
+
+```{r tarea1}
+
+esf <- here('slides','data','template.xlsx') %>% 
+  read_excel(sheet = 'bs') %>% 
+  pivot_longer(-concept, names_to = 'date' ) %>% 
+  pivot_wider(names_from = concept, values_from = value) %>% 
+  mutate(date = mdy(date)) %>% 
+  janitor::clean_names()
+
+```
+
+---
+
+# Solución Tarea
+
+2 Realiza un análisis de liquidez, rotación y apalancamiento
+
+--
+
+```{r tarea2}
+
+liq <- esf %>% 
+  mutate(current = total_current_assets/total_current_liabilities,
+         acid_test = (cash_cash_equivalents_sti + accounts_notes_receiv)/total_current_liabilities,
+         cash2assets = cash_cash_equivalents_sti/total_current_assets,
+         cash2liabilities = cash_cash_equivalents_sti/ total_current_liabilities) %>% 
+  select(date, current, acid_test, cash2assets, cash2liabilities)
+
+
+lev <- esf %>% 
+  mutate(d2e = total_liabilities/total_equity)
+
+```
+
+---
+
+# Solución tarea
+
+Por otro lado las rotaciones se calculan como $\frac{Ventas \hspace{.25cm} Netas}{Concepto \hspace{.25cm} Promedio }$
+
+--
+
+Tenemos estas variables en dos bases de datos separadas (*is* y *esf*)
+
+--
+
+Ademas estos cálculos requieren de operaciones recursivas
+
+--
+
+Una solución es extraer esas variables, guardarlas en nuevos objetos y luego introducirlas en un ciclo *for*
+
+--
+
+¿No sería bueno poder hacer esto en el contexto del `tidyverse` (dplyr, tidyr, magrittr, etc...)
+
+---
+
+class: center, middle
+# Continuará...
+
+---
+
+# Agenda
+
+--
+
+1. Tidyverse 
+
+--
+
+2. Data Joining
+
+--
+
+3. Gramática de las visualizaciones
+
+--
+
+4. `ggplot2`
+
+---
+
+class: inverse, center, middle
+# 1
+
+--
+
+## Tidyverse
+
+---
+
+# Tidyverse
+
+--
+
+### Ya habíamos platicado sobre la impotancia de de *Tidy Data* en la estructura de trabajo de un *Quant Data Scientist* y en general de cualquier Científico de Datos
+
+--
+
+### Esta manera de trabajar no solo tiene ventajas semántico-lógicas en la manera en que interpretamos los datos, sino que también *homegeiniza* la manera en que trabajamos
+
+--
+
+### En la comunidad de R existe un compilado de librerias que están construidas precisamente sobre las bases de *Tidy Data* conocida como *Tidyverse*
+
+---
+
+# Tidyverse
+
+<br>
+<br>
+<br>
+```{r tidyverse, echo=FALSE, fig.align='center'}
+knitr::include_graphics('figs/tidyverse.jpg')
+
+
+```
+
+---
+
+# Tidyverse
+
+```{r tidyverse2, echo=FALSE, fig.align='center', out.height=500, out.width=500}
+
+knitr::include_graphics('figs/tidyverse_all.png')
+
+
+```
+
+---
+
+# Tidyverse
+
+### Este es el esquema de trabajo por que el que, personalmente, prefiero R que Python, ya que no solo abarca las primeros pasos de 1) Lectura; 2) Transformación: y 3) Visualización...
+
+--
+
+### Ahora se ha expandido hacia todas las herramientas de modelado con `tidymodels`
+
+--
+
+### Además, el seguir este esquema y su migración hacia otros lenguages de alguna manera *homegeiniza* la ciencia de datos
+
+---
+
+class: inverse, center, middle
+# 2
+
+--
+
+## Data Joining
+
+---
+
+# Data Joining
+
+--
+
+### El problema de la consolidación de bases de datos no es exclusivo de las finanzas
+
+--
+
+### Para poder "consolidar" una serie de bases de datos, rquerimos de dos cosas
+
+--
+
+### **1** La Tercera Forma Normal de Codd
+
+--
+
+### **2** Una *llave*
+
+---
+
+# Data Joining
+
+
+.pull-left[
+```{r base1, echo=FALSE}
+
+tibble(key = c('A','B','C','D'),
+       W = c('obs1', 'obs2', 'obs3','obs4'),
+       X = c('obs1', 'obs2', 'obs3','obs4')) %>% 
+  kable(caption = 'Tabla 1', format = 'html')
+
+```
+]
+
+.pull-right[
+```{r base2, echo=FALSE}
+
+tibble(key = c('A','B','C','D'),
+       Y = c('obs1', 'obs2', 'obs3','obs4'),
+       Z = c('obs1', 'obs2', 'obs3','obs4')) %>% 
+  kable(caption = 'Tabla 2', format = 'html')
+
+```
+
+]
+
+<br>
+### **Problema** ; "Consolidar" *Tabla 1* y *Tabla 2* en un objeto *Tabla Global*
+---
+
+# Data joining
+
+--
+
+Noten en primer lugar que ambas bases están en formato *tidy* y comparten un 2 *identificador* " que distingue univocamente a cada observación (**key**)
+
+--
+
+Esto es equivalente a una **operación de conjuntos** (unión, intersección, diferencia) dejando el *identificador* **FIJO** 
+
+--
+
+En el contexto de *Tidyverse* se realiza mediante las funciones de `left_join()`, `right_join()`, `full_join()`y `anti_join()` de `tidyr`
+--
+
+```
+
+tabla_global <- left_join(tabla1, tabla2, by = 'key')
+
+```
+
+--
+
+```{r base3, echo=FALSE}
+
+tibble(key = c('A','B','C','D'),
+       W = c('obs1', 'obs2', 'obs3','obs4'),
+       X = c('obs1', 'obs2', 'obs3','obs4'),
+       Y = c('obs1', 'obs2', 'obs3','obs4'),
+       Z = c('obs1', 'obs2', 'obs3','obs4')) %>% 
+  kable(caption = 'Tabla Global', format = 'html')
+
+```
+---
+
+class: center, middle
+# Pregunta
+
+--
+
+## ¿Diferencia entre la familia de `_join`'s?
+
+--
+
+## Chelas al que responda...
+
+--
+
+## **REVISEN LA DOCUMENTACIÓN**
+
+---
+
+# Solución tarea
+
+```{r tarea3}
+
+is_esf <- left_join(is,esf, by = 'date')
+
+```
+
+<br>
+
+### Ya tenemos toda la infromación en un solo df pero, ¿y las operaciones recursivas?
+
+---
+
+# Solución tarea
+
+**BONUS:** `dplyr::lag()`
+
+```{r tarea 4}
+
+rot <- is_esf %>% 
+  mutate(inv_prom = .5*(inventories + lag(inventories,1)),
+         cpc_prom = .5*(accounts_notes_receiv + lag(accounts_notes_receiv,1) ),
+         cpp_prom = .5*(payables_accruals + lag(payables_accruals,1)),
+         rot_inv = cost_of_revenue/ inv_prom,
+         rot_cpc = cost_of_revenue/ cpc_prom,
+         rot_cpp = cost_of_revenue/ cpp_prom) %>% 
+  select(date, rot_inv, rot_cpc, rot_cpp) %>% 
+  mutate(analisis = 'Rotación')
+
+
+```
+
+```{r pre, include=FALSE}
+
+liq <- liq %>% 
+  mutate(analisis = 'Liquidéz')
+
+lev <- lev %>% 
+  mutate(analisis = 'Apalancamiento')
+
+```
+
+
+---
+
+class: inverse, center, middle
+# 3
+
+--
+
+## Gramática de las visualizaciones
+
+---
+
+# Visualizaciones
+
+--
+
+### La importancia de resumenes visuales no pasar desapercibida para ninguno
+
+--
+
+### En nuestro ejemplo de análisis de *liquidéz*, *Rotación* y *Apalancamiento* sería deseable poder comunicar nuestros hallazgos de forma visual
+
+---
+
+# Visualizaciones en otros lenguages
+
+--
+
+Otra de las razones por la que prefiero R sobre Python es `ggplot2`, pero antes de ver una visuliación en este paquete, veamos como se generan las visualizaciones en la mayoría de los lenguajes
+
+--
+
+2 Grandes Grupos
+
+### Grupo 1
+
+```{r badplot2, eval=FALSE}
+plot(x = varx, y = varY)
+RandomFunctionAddingSomeOption()
+AnotherRandomFunctionAddingsomeOption()
+
+SomeRandomCode()
+ThatHasNothing()
+ToDoWithThePlot()
+
+MoreRandomeFunctionsForThePlot()
+```
+---
+
+
+# Visualizaciones en otros lenguages
+
+
+Otra de las razones por la que prefiero R sobre Python es `ggplot2`, pero antes de ver una visuliación en este paquete, veamos como se generan las visualizaciones en la mayoría de los lenguajes
+
+2 Grandes Grupos
+
+### Grupo 2
+
+```{r badplot1, eval=FALSE}
+plot(x = varX, 
+  y = varY,
+  plottype = someplot,
+  optionA = ... ,
+  optionB = ... ,
+  optionC = ... ,
+  ...)
+
+```
+
+---
+
+class: center, middle
+### Personalmente encuentro ambos esquemas poco intuitivos y dificiles de aprender
+
+---
+
+# Gramática de las Visualizacion
+
+--
+
+El paquete `ggplot2` de Hadley Wikham es una implementación del libro *Grammar of Graphics* de Leland Wilkinson 
+
+--
+
+A grandes rasgos, `ggplot2` está construido a partir de la premisa de que las visualizaciones tienen su propia gramática y con esta herramienta (que por cierto es compatible con ` %>% ` es parte del Tidyverse) construimos las visualizaciones por **capas** (como los ogros y las cebollas)
+
+--
+
+1. **Variables**: Los elementos del df que deseamos graficar (*aes*)
+
+--
+
+2. **Geometrías**: El tipo de función con la que vamos a mapear dichas variables (*geom_*)
+
+--
+
+3. **Facetas**: Si existe para mapear la visualización de acuerdo a alguna otra variable categórica de interés (*face_*)
+
+--
+
+4. **Tema**: La apariencia de la visualización (*theme*)
+
+--
+
+Todo esto anidado con el signo `+` indicando que se le está agregando una característica a la visualización
+
+---
+
+class: inverse, center, middle
+# 4
+
+--
+
+## `ggplot2`
+
+---
+
+# `ggplot2`
+
+--
+
+### Estructura Básica
+
+```{r, ggplot1, eval=FALSE}
+
+library(ggplot2)
+
+df %>% 
+  ggplot() + # Ojo no es un pipe
+  aes(x = VarA, y = VarB) +
+  geom_something( aes( col = VarC, fill = VarD, shape = VarE, ... ) ) +
+  facet_wrap(.~ VarF) +
+  theme_sometheme() +
+  theme(
+    # Opciones que tal vez quieras mover
+  ) +
+  labs(
+    title = 'Título',
+    subtitle = 'Subtítulo',
+    caption = 'Texto en el fondo',
+    x = 'VarA',
+    y = 'VarB'
+  )
+
+```
+
+---
+
+# Un ejemplo práctico
+
+**Problema:** Visulizar el nivel de ventas por fecha de nuestro objeto `is` con una gráfica de línea y puntos
+
+--
+
+.pull-left[
+
+```{r ej1, eval=FALSE}
+
+is %>% 
+  ggplot() +
+  aes(x = date, y = revenue) +
+  geom_line() +
+  geom_point()
+
+```
+
+]
+
+--
+
+.pull-right[
+
+```{r ej2, echo=FALSE, out.height=400}
+
+is %>% 
+  ggplot() +
+  aes(x = date, y = revenue) +
+  geom_line() +
+  geom_point()
+
+```
+
+]
+
+---
+
+# Ejercicio
+
+--
+
+1. Cambia el **color** de la línea y los puntos
+
+--
+
+2. Agrega un título y cambia el nombre de los ejes a *Ventas* y *Fecha*
+
+--
+
+3. Agrega una geometría de columnas a la gráfica
+
+--
+
+4. Cambia el tema del gráfico por `theme_minimal()`
+
+--
+
+**HINT:** BUSCA LA SOLUCIÓN EN GOOGLE (MÁS RECOMENDABLE) O REVISA LA DOCUMENTACIÓN DE GGPLOT2
+
+--
+
+"How to do some stuff in ggplot2" (De preferencia usen links de stackoverflow)
+
+--
+
+```{r count}
+
+countdown::countdown(minutes = 10L)
+
+```
+
+---
+
+# Solución
+
+.pull-left[
+
+```{r ej3, eval=FALSE}
+
+is %>% 
+  ggplot() +
+  aes(x = date, y = revenue) +
+  geom_bar(fill = '#5C009E',
+           stat = 'identity') +
+  geom_line( col = 'green',
+             size = .8) +
+  geom_point( col = '#169111',#Hexagesadecimal
+              size = .8) + 
+  theme_minimal() +
+  labs(
+    title = 'Ventas Trimestrales',
+    x = 'Fecha',
+    y = 'Ventas'
+  )
+
+```
+
+
+]
+
+--
+
+.pull-right[
+
+```{r ej4, echo=FALSE, out.height=400}
+
+is %>% 
+  ggplot() +
+  aes(x = date, y = revenue) +
+  geom_bar(fill = '#5C009E', stat = 'identity') +
+  geom_line( col = 'green') +
+  geom_point( col = '#169111') + #Formato Hexagesadecimal
+  theme_minimal() +
+  labs(
+    title = 'Ventas Trimestrales',
+    x = 'Fecha',
+    y = 'Ventas'
+  )
+
+```
+
+
+]
+
+---
+
+# Ejercicio
+
+--
+
+1. Interpreta [esta respuesta](https://stackoverflow.com/questions/25070547/ggplot-side-by-side-geom-bar) y crea el mismo gráfico para *ventas*, *utilidad bruta*, *utilidad operativa* y *utilidad neta* (HINT: `reshape2::melt()` es equivalente a `tidyr::pivot_longer()`)
+
+--
+
+2. Cambia la escala de de colores con `ggplot::scale_fill_manual()` con un vector de 4 colores en formato hexagesadecimal que obtengas de [Adobe Color Wheel](https://color.adobe.com/es/create/color-wheel)
+
+--
+
+3. Encuentra la manera de poner un signo de dólar en el eje y
+
+--
+```{r countdown2, echo=FALSE}
+
+countdown::countdown(minutes = 10L)
+
+
+
+```
+
+---
+
+# Solución
+
+--
+
+```{r ej5, eval=FALSE, tidy =FALSE}
+
+library(scales)
+
+is %>% 
+  select(date, revenue, gross_profit, operating_income, net_income) %>% 
+  pivot_longer(-date, names_to = 'variable') %>% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  {{scale_y_continuous(labels = dollar_format(prefix = '$')) +}}
+  scale_color_manual(values = c('#53B324','#B309AF','#A52AFB','#B145FF')) +
+  theme_minimal() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+
+
+```
+
+---
+
+# Solución
+
+```{r ej6, echo=FALSE, message=FALSE,warning=FALSE, out.height=500, fig.align='center'}
+
+library(scales)
+
+is %>% 
+  select(date, revenue, gross_profit, operating_income, net_income) %>% 
+  pivot_longer(-date, names_to = 'variable') %>% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+  scale_color_manual(values = c('#53B324','#B309AF','#A52AFB','#B145FF')) +
+  theme_minimal() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+```
+
+---
+
+# Solución (Bonus \# 1)
+ 
+--
+
+Como pudieron ver una de las ventajas del formato *long* que aprendimos hace un par de clases es ideal para generar visualizaciones con `ggplot2`
+
+--
+
+Ahora, sería deseable que nuestras barras estuvieran ordenadas de manera decreciente esto se logra con `forcats::fct_reorder()` (que de hecho es parte del tidyverse)
+
+--
+
+```{r ej7, eval=FALSE, tidy=FALSE}
+is %>% 
+  select(date, revenue, gross_profit, operating_income, net_income) %>% 
+  pivot_longer(-date, names_to = 'variable') %>% 
+  {{mutate(variable = forcats::fct_reorder(variable, value, .desc = TRUE)) %>% }}
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+  scale_fill_manual(values = c('#53B324','#B309AF','#A52AFB','#B145FF')) +
+  theme_minimal() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+
+```
+
+---
+
+# Solución (Bonus \# 1)
+
+
+```{r ej8, echo=FALSE, fig.align='center', out.height=500}
+is %>% 
+  select(date, revenue, gross_profit, operating_income, net_income) %>% 
+  pivot_longer(-date, names_to = 'variable') %>% 
+  mutate(variable = forcats::fct_reorder(variable, value, .desc = TRUE)) %>% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+  scale_fill_manual(values = c('#53B324','#B309AF','#A52AFB','#B145FF')) +
+  theme_minimal() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+
+```
+
+---
+
+# Factores
+
+--
+
+### Un tipo especial de *string* son los `factores`, que es una manera de declarar una variable **cualitativa** de manera **explícita** en R
+
+--
+
+### Los factores pueden (o no ) tener cierta *jerarquía* a la que se le conoce como `niveles`
+
+
+---
+
+# Solución (Bonus \# 2)
+
+--
+
+`ggplot2` es un proyecto *MUY* grande y hay librerias complentarias con *temas* y extensiones (como *animaciones* ó *mapas*) que conservan esta idea central de la gramática de las visualizaciones
+
+--
+
+Un ejemplo es `ggthemes`
+
+--
+
+```{r ej9, eval=FALSE}
+library(ggthemes)
+
+is %>% 
+  select(date, revenue, gross_profit, operating_income, net_income) %>% 
+  pivot_longer(-date, names_to = 'variable') %>% 
+  mutate(variable = forcats::fct_reorder(variable, value, .desc = TRUE)) %>% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+  {{theme_stata() +}}
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+
+```
+---
+
+# Solución (Bonus \# 2)
+
+```{r ej10, echo=FALSE, fig.align='center', out.height=500, warning=FALSE,message=FALSE}
+library(ggthemes)
+
+is %>% 
+  select(date, revenue, gross_profit, operating_income, net_income) %>% 
+  pivot_longer(-date, names_to = 'variable') %>% 
+  mutate(variable = forcats::fct_reorder(variable, value, .desc = TRUE)) %>% 
+  ggplot() +
+  aes( x = date, y = value, fill = variable) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_y_continuous(labels = dollar_format(prefix = '$')) +
+  theme_stata() +
+  labs(title = 'Income Profile',
+       x = 'Date',
+       y = 'Millions of pesos') 
+
+```
+
+---
+
+class: inverse, center, middle
+# \# generativeart
+
+--
+
+## `ggplot2` es tan poderoso y tan flexible que no solo es la herramienta por excelencia para crear visualizaciones
+
+--
+
+## Hay gente que se dedica a hacer visuliazaciones con fines estéticos utilizando R y ggplot2
+
+---
+
+# ¿Qué sigue?
+
+--
+
+1. Facetss
+
+--
+
+2. Elementos de `theme()` y creación de temas personalizados
+
+--
+
+3. Animaciones (?)

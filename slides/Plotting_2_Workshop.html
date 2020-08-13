@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R 4 Finance</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Gibrán Peniche" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: title-slide, right, middle
+.pull-left[ &lt;img src="figs/bottom_img.png" width="1017" /&gt;]
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+# R4Finanace
+## Joining 2 &amp; Workshop
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/07/16
+####  &lt;i class="fab fa-github"&gt;&lt;/i&gt; [jgpeniche](https://github.com/jgpeniche)
+####  &lt;i class="fab fa-twitter"&gt;&lt;/i&gt; [PenicheGibran](https://twitter.com/PenicheGibran)
+####  &lt;i class="fab fa-google"&gt;&lt;/i&gt; jgpeniche@gmail.com
+---
+
+# Recap
+
+
+--
+
+- Aprendimos a utilizar `left_join()`, `right_join()`, `full_join()`, `anti_join()` para "consolidar" bases de datos
+
+--
+
+- Aprendimos la estructura básica para construir una visualización partiendo de un `df` en formato *tidy*
+
+--
+
+```
+df %&gt;% 
+  ggplot2() +
+  aes() +
+  geom_something() +
+  labs() +
+  theme()
+
+```
+--
+
+- Aprendimos como cambiar algunos atributos de color básicos, y a usar los temas de la libreria `ggthemes`
+
+---
+
+# Agenda
+
+--
+
+1. Relación entre df's en formato *long* y las visualizaciones
+
+--
+
+2. Facetas
+
+--
+
+3. Temas personzalizados
+
+--
+
+4. Caso de Estudio
+
+---
+
+class: inverse, center, middle
+# 1
+--
+
+# Relación entre df's en formato *long* y las visualizaciones
+
+---
+
+# Variables cualitativas 
+
+--
+
+- Existen dos tipos de información sobre las variables
+
+--
+
+  1. Cuantitativa: Que se relaciona con magnitudes (velocidad, peso, precio, retornos, etc)
+
+--
+
+  2. Cualitativa: Que se relaciona con atributos no medibles (color, tipo, condición física, etc)
+
+--
+
+- Como ya habíamos comentado el tipo de objeto en R que nos permite codificar texto como variables cualitativas son los factores
+
+--
+
+Esto tiene relevancia ya que ggplot2 tiene un tratamiento especial para este tipo de variables
+
+---
+
+# Un ejemplo práctico
+
+--
+
+- Consideremos el siguiente df que contiene el análisis de liquidez para *LAB B* de la semana pasada
+
+--
+
+
+```
+## Rows: 6
+## Columns: 6
+## $ date             &lt;date&gt; 2018-03-31, 2018-06-30, 2018-09-30, 2018-12-31, 2...
+## $ current          &lt;dbl&gt; 0.8744778, 0.9292701, 0.9310768, 0.9200394, 0.8964...
+## $ acid_test        &lt;dbl&gt; 0.5067134, 0.5436615, 0.5525045, 0.5382059, 0.5140...
+## $ cash2assets      &lt;dbl&gt; 0.1246119, 0.1743048, 0.1774276, 0.1690932, 0.1544...
+## $ cash2liabilities &lt;dbl&gt; 0.10897030, 0.16197624, 0.16519876, 0.15557242, 0....
+## $ analisis         &lt;chr&gt; "Liquidéz", "Liquidéz", "Liquidéz", "Liquidéz", "L...
+```
+
+---
+
+# Un ejemplo práctico
+
+--
+
+- A partir de esta infromación quisieramos contruir un gráfico de líneas con la evolución histórica de las razones de liquidez
+
+--
+
+.pull-left[
+
+```r
+liq %&gt;% 
+  ggplot() +
+  aes(x = date) +
+  geom_line( aes(y = current), col = 'green') +
+  geom_line( aes(y = acid_test), col = 'blue') +
+  geom_line( aes(y = cash2assets), col = 'orange') +
+  labs(title = 'Análisis de liquidez',
+       subtitle = 'LAB B') +
+  theme_minimal()
+```
+]
+
+.pull-right[
+&lt;img src="Plotting_2_Workshop_files/figure-html/ej3-1.png" height="400" /&gt;
+]
+
+---
+
+# Un ejemplo práctico
+
+**PREGUNTA:** ¿Existe alguna maner más sencilla de crear esta visuzliación y además agregar una leyenda automática?
+
+--
+
+**R:** Consideren el siguiente long df
+
+
+```r
+liq_long &lt;- liq %&gt;% 
+  pivot_longer(-c(date, analisis), names_to = 'ratio') %&gt;% 
+  mutate(ratio = factor(ratio))
+
+liq_long %&gt;% glimpse()
+```
+
+```
+## Rows: 24
+## Columns: 4
+## $ date     &lt;date&gt; 2018-03-31, 2018-03-31, 2018-03-31, 2018-03-31, 2018-06-3...
+## $ analisis &lt;chr&gt; "Liquidéz", "Liquidéz", "Liquidéz", "Liquidéz", "Liquidéz"...
+## $ ratio    &lt;fct&gt; current, acid_test, cash2assets, cash2liabilities, current...
+## $ value    &lt;dbl&gt; 0.87447779, 0.50671339, 0.12461185, 0.10897030, 0.92927005...
+```
+
+
+
+---
+
+# Un ejemplo práctico
+
+--
+
+Y ahora con ggplot
+
+--
+
+.pull-left[
+
+```r
+liq_long %&gt;% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Liquidity Análisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+```
+]
+
+--
+
+.pull-right[
+&lt;img src="Plotting_2_Workshop_files/figure-html/long_plot_eval-1.png" height="400" /&gt;
+]
+
+---
+
+# Ejemplo práctico
+
+De esta manera, utilizando datos en formto long (que en esta ocasión coinciden con el formato tidy), podemos generar leyends automáticas
+
+---
+
+class: inverse, center, middle
+# 2
+
+--
+
+# Facetas
+
+---
+
+# Más usos para las variables cualitativas
+
+--
+
+- Consideremos los objetos `rot_long` y `lev_long` construidos de la misma manera que `liq_long`
+
+--
+
+
+```r
+ratios &lt;- liq_long %&gt;% 
+  bind_rows(rot_long) %&gt;% 
+  bind_rows(lev_long)
+
+ratios %&gt;% glimpse()
+```
+
+```
+## Rows: 210
+## Columns: 4
+## $ date     &lt;date&gt; 2018-03-31, 2018-03-31, 2018-03-31, 2018-03-31, 2018-06-3...
+## $ analisis &lt;chr&gt; "Liquidéz", "Liquidéz", "Liquidéz", "Liquidéz", "Liquidéz"...
+## $ ratio    &lt;fct&gt; current, acid_test, cash2assets, cash2liabilities, current...
+## $ value    &lt;dbl&gt; 0.87447779, 0.50671339, 0.12461185, 0.10897030, 0.92927005...
+```
+
+--
+
+- Estaría increible crear un sola visualización con todos los análisis, esto se realiza con `facet_wrap()` utilizando la variable cualitativa *análisis*
+
+---
+
+# Más usos para las variables cualitativas
+
+--
+
+.pull-left[
+
+```r
+ratios %&gt;% 
+  ggplot() +
+  aes(x = date, y = value, fill = ratio) +
+  geom_bar(position = 'dodge', stat = 'identity') +
+  facet_wrap(.~ analisis, scales = 'free') +
+  labs(title = 'Análisis financiero',
+       subtitle = 'LAB B') +
+  theme_minimal()
+```
+
+]
+
+--
+
+.pull-right[
+&lt;img src="Plotting_2_Workshop_files/figure-html/facet_eval-1.png" width="400" /&gt;
+]
+
+---
+
+# `patchwork`
+
+--
+
+Otra opción sería guardar cada visualización en un objeto y luego desplegarlas en cierto orden, para eso usamos la librería `patchwork`
+
+--
+
+
+```r
+p1 &lt;- liq_long %&gt;% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Liquidity Análisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+```
+
+
+```r
+p2 &lt;- rot_long %&gt;% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Turnover Analisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+
+p3 &lt;- lev_long %&gt;% 
+  ggplot() +
+  aes(x = date, y = value, col = ratio) +
+  geom_line() +
+  labs(title = 'Leverage Análisis',
+       subtitle = 'LAB B',
+       x = 'Date',
+       y =  '',
+       col = 'Ratio') +
+  theme_minimal()
+```
+
+--
+
+Construimos `p2` y `p3` con *rot_long* y *lev_long*
+
+---
+
+# `patchwork`
+
+--
+
+.pull-left[
+
+```r
+library(patchwork)
+(p1 + p2)/p3
+```
+
+]
+
+--
+
+.pull-right[
+
+&lt;img src="Plotting_2_Workshop_files/figure-html/patchwork2-1.png" height="400" /&gt;
+
+]
+
+---
+
+class: inverse, center, middle
+# 4
+
+--
+
+# Caso de estudio
+
+---
+
+# Caso de Estudio
+
+--
+
+1. Crear una nueva carpeta en tus documentos llamada `analisis_solvencia_tu_nombre`
+
+  + Dentro de esta carpeta crea un nuevo folder llamado `data` y copia en este directorio el archivo `template.xlsx` con el que hemos estado trabajando
+
+--
+
+2. Abre RStudio y crea un nuevo proyecto en la carpeta que acabas de crear que se llame `analisis_solvencia`
+
+--
+
+3. En RStudio File &gt; New File &gt; RMarkdown, esto abrirá un diálogo
+
+  + Title: 'Análisis de Solvencia Genoma Lab'
+  + Author: Tu nombre
+  + Verifica que la opción **HTML** esté seleccionada
+  + Click en *Ok*
+
+---
+
+4. Esto va a generar un nuevo archivo en el editor, oprime la opción **knit** y guardalo en la misma carpeta del proyecto con el nombre `reporte_labb`. Nota que al guardar se genera una ventana nueva donde se despliega un documento
+
+--
+
+5. Regresa al editor de RStudio e inspecciona el código del archivo
+
+--
+
+6. Importa las pestañas `solv`, `solv2` y `solv3` a R, pásalas a formato long (`tidyr::pivot_wider()`) y trnasforma los datos al tipo de información correcto (fecha a objetos tipo *date* y variables cualitativas a tipo *factor*). Para checar cual es el key-shortcut para crear code-chunks: Tools &gt; Keyboard Shortcut help y busca `insert chunk`
+
+--
+
+7. Ya que los tres objetos estén en formato long, crea un nuevo objeto llamado `solvency` utilzando `bind_rows`
+
+--
+
+8. Redacta una breve introducción al documento de que es un análisis de solvencia de acuerdo al capítulo 12 del libro que les compartí
+
+--
+
+9. Realiza una visulización de los márgenes de solvencia para Genoma Lab en formato ejecutivo. Ojo la leyenda debe estar en el fondo, y los colores del título y subtítulo deben de ser diferentes (HINT: googlealo 'change title color ggplot2')
+---
+
+10. Vuelve a oprimir *knit* y verifica que no haya ningún error, ojo el documento html **unicamente debe incluir la introducción y el gráfico**, no debe aparecer todo el código de limpieza, ni el que generó el plot
+
+--
+
+11. Comprime la carpeta y envíame el .zip
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"self_contained": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

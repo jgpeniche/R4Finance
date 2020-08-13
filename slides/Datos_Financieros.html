@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R 4 Finance</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Gibrán Peniche" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: title-slide, right, middle
+.pull-left[ &lt;img src="figs/bottom_img.png" width="1017" /&gt;]
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+# R4Finanace
+## Datos Financieros
+### J. Gibrán Peniche
+### Versión 0.0.1
+### 2020/07/24
+####  &lt;i class="fab fa-github"&gt;&lt;/i&gt; [jgpeniche](https://github.com/jgpeniche)
+####  &lt;i class="fab fa-twitter"&gt;&lt;/i&gt; [PenicheGibran](https://twitter.com/PenicheGibran)
+####  &lt;i class="fab fa-google"&gt;&lt;/i&gt; jgpeniche@gmail.com
+---
+
+# Recap
+
+
+--
+
+- Exploramos usos adicionales de variables cualitativas
+
+--
+
+- Exploramos una manera de generar reportes a través de RMarkdown
+
+---
+
+# Agenda
+
+--
+
+1. Productos de Datos
+
+--
+
+2. Manipulación de datos financieros utilizando `tidyquant`
+
+---
+
+class: inverse, center, middle
+# 1
+
+--
+
+# Productos de datos
+
+---
+
+# Productos de datos
+
+--
+
+- ¿Cuál es el fin último de un analista de datos?
+
+--
+
+**R:** Proveer de información relevante para la toma de decisiones
+
+--
+
+- El espectro de aactividad de un Data Sciencitist comprende desde el *back - end* (recopilación / limpieza / análisis exploratorio/ ajuste de modelos) hasta el *front - end* apliación/ página web / documento que iteractue con el usuario final
+
+--
+
+- Tus resultados NO sirven de nada si tienes que ir de puerta en puerta con tu editor de texto mostrando tus resultados
+
+---
+
+class: center, middle
+# Tarea:
+
+--
+
+### Exportar el archivo `solvencia.rmd` a formato PDF desde RStuio (HINT: Abre un nuevo documento de RMarkdown, selecciona formato PDF y descarga las dependencias que arroja el error de la consola de RStdudio. OJO: Tarda alredor de 2 hrs)
+
+---
+
+class: inverse, center, middle
+# 2
+
+--
+
+# Manipulando datos finacieros
+
+---
+
+# `Tidyquant`
+
+--
+
+- Estaría excelente poder importar datos finacieros sin necesidad de pasar por el dato intemedio de importar un archivo csv
+
+--
+
+- La manipulación/importación de datos finacieros en formato tidy se realiza a través de la libreria `tidyquant`
+
+--
+
+- `Tidyquant` está construido sobre librerias preexistentes `Quantmod`, `PortfolioAnalytics`, `zoo`,`xts`, etc. 
+
+--
+
+- Las funciones de estas liberias las incorpora a métodos para que podamos manipular esta información en el cntexto de tidy data
+
+---
+
+# Importar datos financieros
+
+
+--
+
+En `Tidyquant` importamos datos financieros/económicos con la función `tq_get()` que está construida sobre `Quantmod::getSymbols()`
+
+--
+
+.pull-left[ 
+
+```r
+library(tidyverse)
+library(tidyquant)
+
+tesla &lt;- 'TSLA' %&gt;% 
+  tq_get(from = '2019-01-01',
+         to = '2020-01-01')
+```
+]
+
+.pull-right[
+
+```
+## Rows: 252
+## Columns: 8
+## $ symbol   &lt;chr&gt; "TSLA", "TSLA", "TSLA", "TSLA", "TSLA", "TSLA", "TSLA", "T...
+## $ date     &lt;date&gt; 2019-01-02, 2019-01-03, 2019-01-04, 2019-01-07, 2019-01-0...
+## $ open     &lt;dbl&gt; 306.10, 307.00, 306.00, 321.72, 341.96, 335.50, 334.40, 34...
+## $ high     &lt;dbl&gt; 315.13, 309.40, 318.00, 336.74, 344.01, 343.50, 345.39, 34...
+## $ low      &lt;dbl&gt; 298.80, 297.38, 302.73, 317.75, 327.02, 331.47, 331.79, 33...
+## $ close    &lt;dbl&gt; 310.12, 300.36, 317.69, 334.96, 335.35, 338.53, 344.97, 34...
+## $ volume   &lt;dbl&gt; 11658600, 6965200, 7394100, 7551200, 7008500, 5432900, 605...
+## $ adjusted &lt;dbl&gt; 310.12, 300.36, 317.69, 334.96, 335.35, 338.53, 344.97, 34...
+```
+
+
+]
+
+--
+
+Noten que por default nuestro df, incluye una columna llamada `symbol`
+
+--
+
+**OJO** La convención entre los científicos de datos es que las fechas deben estar en formato YYYY/MM/DD
+
+---
+
+# Importar datos financieros de múltiples activos
+
+--
+
+.pull-left[ 
+
+```r
+tesla &lt;- c('TSLA', 'SPY') %&gt;% 
+  tq_get(from = '2019-01-01',
+         to = '2020-01-01')
+```
+]
+
+.pull-right[
+
+```
+## Rows: 504
+## Columns: 8
+## $ symbol   &lt;chr&gt; "TSLA", "TSLA", "TSLA", "TSLA", "TSLA", "TSLA", "TSLA", "T...
+## $ date     &lt;date&gt; 2019-01-02, 2019-01-03, 2019-01-04, 2019-01-07, 2019-01-0...
+## $ open     &lt;dbl&gt; 306.10, 307.00, 306.00, 321.72, 341.96, 335.50, 334.40, 34...
+## $ high     &lt;dbl&gt; 315.13, 309.40, 318.00, 336.74, 344.01, 343.50, 345.39, 34...
+## $ low      &lt;dbl&gt; 298.80, 297.38, 302.73, 317.75, 327.02, 331.47, 331.79, 33...
+## $ close    &lt;dbl&gt; 310.12, 300.36, 317.69, 334.96, 335.35, 338.53, 344.97, 34...
+## $ volume   &lt;dbl&gt; 11658600, 6965200, 7394100, 7551200, 7008500, 5432900, 605...
+## $ adjusted &lt;dbl&gt; 310.12, 300.36, 317.69, 334.96, 335.35, 338.53, 344.97, 34...
+```
+
+]
+
+--
+
+Noten que al importar más de activo el df que regresa tidyquant por default está en formato `long`
+
+---
+
+# Un ejemplo sin tidyquant
+
+--
+
+Generalmente en la rama de asset pricing, nos interesa calcular los retornos de los precios de un activo ¿Cómo calculariamos esto sin disponer de tidyquant?
+
+--
+
+
+```r
+tsla &lt;- 'TSLA' %&gt;% 
+  quantmod::getSymbols(from = '2019-01-01', to = '2020-01-01', 
+                       env = NULL) %&gt;% 
+  zoo::fortify.zoo() %&gt;% 
+  as_tibble() %&gt;% 
+  janitor::clean_names() %&gt;% 
+  rename(open = tsla_open,
+         close = tsla_close,
+         volume = tsla_volume,
+         adjusted = tsla_adjusted,
+         high = tsla_high,
+         low = tsla_low) %&gt;%
+  mutate(return = adjusted/lag(adjusted) -1) %&gt;% 
+  group_by(index = lubridate::floor_date(index, 'month')) %&gt;% 
+  summarise(return = mean(return)) %&gt;% 
+  mutate(symbol = 'tsla') 
+```
+
+---
+
+# Un ejemplo sin tidyquant 
+
+
+```r
+spy &lt;- 'SPY' %&gt;% 
+  quantmod::getSymbols(from = '2019-01-01', to = '2020-01-01', 
+                       env = NULL) %&gt;% 
+  zoo::fortify.zoo() %&gt;% 
+  as_tibble() %&gt;% 
+  janitor::clean_names() %&gt;% 
+  rename(open = spy_open,
+         close = spy_close,
+         volume = spy_volume,
+         adjusted = spy_adjusted,
+         high = spy_high,
+         low = spy_low) %&gt;% 
+  mutate(return = adjusted/lag(adjusted) -1) %&gt;%
+  group_by(index = lubridate::floor_date(index, 'month')) %&gt;% 
+  summarise(return = mean(return)) %&gt;% 
+  mutate(symbol = 'spy')
+
+
+assets &lt;- tsla %&gt;% 
+  bind_rows(spy)
+```
+---
+
+# Un ejemplo con tidyquant
+
+Como notamos, es muy laborioso y además solo calculamos la media aritmética de los retornos.
+
+--
+
+Calcular la media geométrica `\(^{\frac{1}{n}}\sqrt{\prod_{i=1}^n(1+r_i)}-1\)` es mucho más complicado
+
+--
+
+Con `tidyquant` todo el código anterior es equivalente a
+
+
+```r
+assets &lt;- c('TSLA', 'SPY') %&gt;% 
+  tq_get(from = '2019-01-01',
+         to = '2020-01-01') 
+
+
+returns_monthly &lt;- assets %&gt;% 
+  group_by(symbol) %&gt;% 
+  tq_transmute(select = adjusted,
+            mutate_fun = monthlyReturn,
+            type = 'log',
+            col_rename = 'return')
+```
+
+---
+
+# Más sobre tidyquant
+
+--
+
+Además de permitirnos descargar información financiera de yahoo finance podemos descargar infromación económica de la base de datos de la FRED
+
+--
+
+Para esto tenemos que especificar la opcion de `tq_get(get = 'economic data')`
+
+--
+
+Antes también se podían descargar estados financieros de Google finance, pero esta opción ha quedado deshabilidata ya que Google ya no provee de este servicio
+
+---
+---
+# Caso práctico
+--
+
+1. Utiliza `tq_get()` para descargar infromación financiera de 3 activos desde yahoo finance
+
+--
+
+2. utilizando `tq_mutate()` crea una columna llamada `rol_vol` que contenga una ventana de 20 dias de volatilidad (HINT: Revisa la documentación de la función `rollapply`)
+
+--
+
+3. Crea una visuliación donde grafiques la ventana de volatilidad de 20 dias para cada uno de los activos
+
+--
+
+<div class="countdown" id="timer_5f289b9a" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"self_contained": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
